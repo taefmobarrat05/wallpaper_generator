@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wallpaper Generator · minimalist elements</title>
+<title>Wallpaper Generator · ripples + minimal</title>
 <style>
   body {
     margin: 0;
@@ -85,7 +85,7 @@
 </head>
 <body class="dark">
 
-<h1 style="font-size:22px; text-align:center; margin-bottom:10px;">▎ Minimalist elements · clean geometry</h1>
+<h1 style="font-size:22px; text-align:center; margin-bottom:10px;">◯ Ripples + minimalist geometry</h1>
 
 <div class="card">
   <div id="palettePreview"></div>
@@ -169,7 +169,7 @@
     <span>Prismatic <input type="range" id="prismatic" min="0" max="1" value="0" step="0.05" style="width:80px;"></span>
   </div>
 
-  <!-- ========== MINIMALIST ELEMENTS (new) ========= -->
+  <!-- ========== MINIMALIST ELEMENTS ========= -->
   <div class="section-divider">⬜ Minimalist elements</div>
   <div class="toggleGroup">
     <label>Enable</label><label class="switch"><input type="checkbox" id="minimalToggle"><span class="slider"></span></label>
@@ -187,7 +187,33 @@
     <span>Spacing <input type="range" id="minimalSpacing" min="5" max="100" value="30" style="width:80px;"></span>
     <span>Opacity <input type="range" id="minimalOpacity" min="0" max="1" step="0.05" value="0.5" style="width:80px;"></span>
   </div>
-  <div class="note">Clean geometric overlays – drawn after letters, before vignette.</div>
+
+  <!-- ========== RIPPLES (various ways) ========= -->
+  <div class="section-divider">🌊 Ripples (various styles)</div>
+  <div class="toggleGroup">
+    <label>Enable ripples</label><label class="switch"><input type="checkbox" id="ripplesToggle"><span class="slider"></span></label>
+  </div>
+  <div class="param-row">
+    <span>Style <select id="rippleStyle">
+      <option value="concentric">Concentric (center)</option>
+      <option value="multiorigin">Multi‑origin</option>
+      <option value="grid">Grid origins</option>
+      <option value="offset">Offset rings</option>
+      <option value="spiral">Spiral</option>
+    </select></span>
+    <span>Color <input type="color" id="rippleColor" value="#88aaff" style="width:60px;"></span>
+    <span>Thickness <input type="range" id="rippleThick" min="1" max="10" value="2" style="width:70px;"></span>
+    <span>Ring step <input type="range" id="rippleStep" min="10" max="100" value="30" style="width:70px;"></span>
+  </div>
+  <div class="param-row">
+    <span>Ring count <input type="range" id="rippleCount" min="1" max="20" value="5" style="width:70px;"></span>
+    <span>Origin X <input type="range" id="rippleX" min="-200" max="200" value="0" style="width:100px;"></span>
+    <span>Origin Y <input type="range" id="rippleY" min="-200" max="200" value="0" style="width:100px;"></span>
+    <span>Opacity <input type="range" id="rippleOpacity" min="0" max="1" step="0.05" value="0.6" style="width:80px;"></span>
+  </div>
+  <div class="param-row" id="rippleExtraParam" style="display:none;"> <!-- for future expansion, e.g. spiral factor -->
+    <span>Spiral factor <input type="range" id="rippleSpiral" min="0" max="0.5" value="0.1" step="0.01" style="width:80px;"></span>
+  </div>
 
   <!-- ========== SIGNATURE SEAL ========= -->
   <div class="section-divider">🖋️ Signature seal</div>
@@ -206,7 +232,7 @@
     <button class="action" onclick="randomizeAll()">✨ Randomize all</button>
     <button class="action" onclick="downloadWallpaper()">⬇️ Download</button>
   </div>
-  <div class="note">All organic & atmospheric layers removed. Only minimalist geometry added.</div>
+  <div class="note">Minimalist + ripples (multiple styles) – all organic removed.</div>
 </div>
 
 <canvas id="previewCanvas" width="800" height="400"></canvas>
@@ -285,7 +311,7 @@
     document.getElementById("baseColor").dispatchEvent(new Event('input'));
   }
 
-  // ----- EXISTING LAYER FUNCTIONS (no organic/atmo) -----
+  // ----- EXISTING LAYER FUNCTIONS (paper, metallic, emboss, composition, letters, seal) -----
   function applyPaperTexture(ctx, w, h) {
     const intensity = parseFloat(document.getElementById("paperIntensity").value);
     if(intensity <= 0) return;
@@ -444,7 +470,7 @@
     ctx.restore();
   }
 
-  // ========== NEW MINIMALIST ELEMENTS ==========
+  // ========== MINIMALIST ELEMENTS ==========
   function drawMinimalist(ctx, w, h) {
     if(!document.getElementById("minimalToggle").checked) return;
     const type = document.getElementById("minimalType").value;
@@ -506,7 +532,89 @@
     ctx.restore();
   }
 
-  // ----- MAIN DRAW PREVIEW (organic/atmo removed) -----
+  // ========== RIPPLES (various styles) ==========
+  function drawRipples(ctx, w, h) {
+    if(!document.getElementById("ripplesToggle").checked) return;
+    const style = document.getElementById("rippleStyle").value;
+    const color = document.getElementById("rippleColor").value;
+    const thick = parseFloat(document.getElementById("rippleThick").value);
+    const step = parseFloat(document.getElementById("rippleStep").value);
+    const count = parseInt(document.getElementById("rippleCount").value, 10);
+    const offX = parseFloat(document.getElementById("rippleX").value);
+    const offY = parseFloat(document.getElementById("rippleY").value);
+    const opacity = parseFloat(document.getElementById("rippleOpacity").value);
+    const baseX = w/2 + offX;
+    const baseY = h/2 + offY;
+
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = thick;
+    ctx.globalAlpha = opacity;
+
+    if(style === "concentric") {
+      for(let i=1; i<=count; i++) {
+        ctx.beginPath();
+        ctx.arc(baseX, baseY, i * step, 0, 2*Math.PI);
+        ctx.stroke();
+      }
+    }
+    else if(style === "multiorigin") {
+      let origins = Math.min(count, 6); // number of origins = ring count
+      for(let o=0; o<origins; o++) {
+        let cx = baseX + (Math.random()-0.5)*200;
+        let cy = baseY + (Math.random()-0.5)*200;
+        for(let i=1; i<=3; i++) { // 3 rings per origin
+          ctx.beginPath();
+          ctx.arc(cx, cy, i * step * 0.8, 0, 2*Math.PI);
+          ctx.stroke();
+        }
+      }
+    }
+    else if(style === "grid") {
+      let cols = Math.floor(Math.sqrt(count*2));
+      let rows = cols;
+      let spacing = step * 1.5;
+      let startX = baseX - (cols-1)*spacing/2;
+      let startY = baseY - (rows-1)*spacing/2;
+      for(let r=0; r<rows; r++) {
+        for(let c=0; c<cols; c++) {
+          let cx = startX + c*spacing;
+          let cy = startY + r*spacing;
+          for(let i=1; i<=3; i++) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, i * step * 0.6, 0, 2*Math.PI);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+    else if(style === "offset") {
+      // concentric but with shifted centers per ring
+      for(let i=1; i<=count; i++) {
+        let shiftX = Math.sin(i) * 20;
+        let shiftY = Math.cos(i) * 20;
+        ctx.beginPath();
+        ctx.arc(baseX + shiftX, baseY + shiftY, i * step, 0, 2*Math.PI);
+        ctx.stroke();
+      }
+    }
+    else if(style === "spiral") {
+      // draw a spiral of arcs
+      let turns = count / 2;
+      let maxR = step * count;
+      for(let r=step; r<maxR; r+=step/2) {
+        let angle = r * 0.2; // spiral factor
+        let cx = baseX + Math.cos(angle) * r * 0.3;
+        let cy = baseY + Math.sin(angle) * r * 0.3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r*0.2, 0, 2*Math.PI);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  // ----- MAIN DRAW PREVIEW -----
   function drawPreview() {
     const canvas = document.getElementById("previewCanvas");
     const ctx = canvas.getContext("2d");
@@ -519,15 +627,18 @@
     ctx.fillStyle = createGradient(ctx, w, h);
     ctx.fillRect(0,0,w,h);
 
-    // material effects
+    // material effects (background)
     applyMetallic(ctx, w, h);
     applyEmboss(ctx, w, h);
 
     // letters (mid-ground)
     drawLetters(ctx, w, h);
 
-    // MINIMALIST ELEMENTS (after letters, before composition)
+    // minimalist elements
     drawMinimalist(ctx, w, h);
+
+    // RIPPLES (after minimalist, before composition)
+    drawRipples(ctx, w, h);
 
     // composition / light
     applyVignette(ctx, w, h);
@@ -559,8 +670,8 @@
     applyEmboss(ctx, width, height);
 
     drawLetters(ctx, width, height);
-
     drawMinimalist(ctx, width, height);
+    drawRipples(ctx, width, height);
 
     applyVignette(ctx, width, height);
     applyLightLeak(ctx, width, height);
@@ -578,7 +689,7 @@
     link.click();
   }
 
-  // randomize all parameters (updated for minimal)
+  // randomize all parameters (including ripples)
   function randomizeAll() {
     document.getElementById("baseColor").value = randomColor();
     document.getElementById("baseColor").dispatchEvent(new Event('input'));
@@ -606,6 +717,17 @@
     document.getElementById("minimalSize").value = 2 + Math.random()*15;
     document.getElementById("minimalSpacing").value = 10 + Math.random()*80;
     document.getElementById("minimalOpacity").value = 0.2 + Math.random()*0.7;
+    // ripples
+    document.getElementById("ripplesToggle").checked = Math.random()>0.3;
+    const rStyles = ["concentric","multiorigin","grid","offset","spiral"];
+    document.getElementById("rippleStyle").value = rStyles[Math.floor(Math.random()*rStyles.length)];
+    document.getElementById("rippleColor").value = randomColor();
+    document.getElementById("rippleThick").value = 1 + Math.random()*8;
+    document.getElementById("rippleStep").value = 15 + Math.random()*70;
+    document.getElementById("rippleCount").value = 2 + Math.floor(Math.random()*12);
+    document.getElementById("rippleX").value = (Math.random()-0.5)*300;
+    document.getElementById("rippleY").value = (Math.random()-0.5)*300;
+    document.getElementById("rippleOpacity").value = 0.3 + Math.random()*0.6;
     // seal
     document.getElementById("sealToggle").checked = Math.random()>0.3;
     document.getElementById("sealChar").value = ["波","桜","心","夢","光"][Math.floor(Math.random()*5)];
@@ -638,3 +760,4 @@
 </script>
 </body>
 </html>
+
