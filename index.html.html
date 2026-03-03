@@ -3,280 +3,639 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wallpaper Generator</title>
+<title>Wallpaper Generator · minimalist elements</title>
 <style>
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"San Francisco",Helvetica,Arial,sans-serif;
-  padding:15px;
-  background:#000;
-  color:#f2f2f7;
-  transition:0.3s;
-}
-body.light{ background:#f2f2f7; color:#1c1c1e; }
-.card{
-  background:rgba(255,255,255,0.1);
-  backdrop-filter:blur(14px);
-  border-radius:18px;
-  padding:15px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.1);
-  margin-bottom:15px;
-}
-body.light .card{ background:rgba(255,255,255,0.85); }
-
-#palettePreview{ height:16px; border-radius:12px; margin-bottom:10px; }
-.palette{ display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
-.color-box{ width:40px; height:40px; border-radius:12px; cursor:pointer; border:2px solid rgba(255,255,255,0.2); transition:0.2s; }
-body.light .color-box{ border:2px solid rgba(0,0,0,0.1); }
-.color-box:hover{ transform:scale(1.1); }
-
-input, select{
-  padding:4px 8px; border-radius:10px; border:1px solid rgba(255,255,255,0.2);
-  margin:3px 3px 3px 0; background:#1c1c1e; color:white; font-size:13px;
-}
-body.light input, body.light select{ border:1px solid rgba(0,0,0,0.2); background:#fff; color:#1c1c1e; }
-
-button.action{ background:#007aff; color:white; border:none; padding:6px 12px; border-radius:12px; font-weight:600; cursor:pointer; margin-top:5px; font-size:13px;}
-button.action:hover{ background:#005ecb; }
-
-#previewCanvas{ width:100%; height:400px; border-radius:16px; border:1px solid rgba(255,255,255,0.2); margin-top:10px; }
-body.light #previewCanvas{ border:1px solid rgba(0,0,0,0.1); }
-
-.switch{ position: relative; display: inline-block; width:40px; height:22px; }
-.switch input{ opacity:0; width:0; height:0; }
-.slider{ position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#555; border-radius:22px; transition:.3s; }
-.slider:before{ position:absolute; content:""; height:18px; width:18px; left:2px; bottom:2px; background:white; border-radius:50%; transition:.3s; }
-input:checked + .slider{ background:#007aff; }
-input:checked + .slider:before{ transform: translateX(18px); }
-.toggleGroup{ display:flex; gap:15px; align-items:center; margin:5px 0; flex-wrap:wrap; font-size:13px;}
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "San Francisco", Helvetica, Arial, sans-serif;
+    padding: 15px;
+    background: #000;
+    color: #f2f2f7;
+    transition: 0.3s;
+  }
+  body.light { background: #f2f2f7; color: #1c1c1e; }
+  .card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(14px);
+    border-radius: 18px;
+    padding: 15px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    margin-bottom: 15px;
+  }
+  body.light .card { background: rgba(255,255,255,0.85); }
+  #palettePreview { height: 16px; border-radius: 12px; margin-bottom: 10px; }
+  .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .color-box { width: 40px; height: 40px; border-radius: 12px; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); transition: 0.2s; }
+  body.light .color-box { border: 2px solid rgba(0,0,0,0.1); }
+  .color-box:hover { transform: scale(1.1); }
+  input, select {
+    padding: 4px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
+    margin: 3px 3px 3px 0; background: #1c1c1e; color: white; font-size: 13px;
+  }
+  body.light input, body.light select { border: 1px solid rgba(0,0,0,0.2); background: #fff; color: #1c1c1e; }
+  button.action {
+    background: #007aff; color: white; border: none; padding: 6px 12px; border-radius: 12px;
+    font-weight: 600; cursor: pointer; margin-top: 5px; font-size: 13px;
+  }
+  button.action:hover { background: #005ecb; }
+  #previewCanvas {
+    width: 100%; height: 400px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);
+    margin-top: 10px;
+  }
+  body.light #previewCanvas { border: 1px solid rgba(0,0,0,0.1); }
+  .switch {
+    position: relative; display: inline-block; width: 40px; height: 22px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background: #555; border-radius: 22px; transition: .3s;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px;
+    background: white; border-radius: 50%; transition: .3s;
+  }
+  input:checked + .slider { background: #007aff; }
+  input:checked + .slider:before { transform: translateX(18px); }
+  .toggleGroup {
+    display: flex; gap: 15px; align-items: center; margin: 5px 0; flex-wrap: wrap; font-size: 13px;
+  }
+  .section-divider {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin: 18px 0 12px 0;
+    padding-top: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  body.light .section-divider { border-top-color: rgba(0,0,0,0.1); }
+  .param-row {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0; font-size: 12px;
+  }
+  .param-row span { display: inline-flex; align-items: center; gap: 4px; }
+  .note {
+    font-size: 11px; opacity: 0.7; margin-top: 4px;
+  }
+  .grid-2 {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
 </style>
 </head>
 <body class="dark">
 
-<h1 style="font-size:22px; text-align:center; margin-bottom:10px;">Wallpaper Generator</h1>
+<h1 style="font-size:22px; text-align:center; margin-bottom:10px;">▎ Minimalist elements · clean geometry</h1>
 
 <div class="card">
-<div id="palettePreview"></div>
-<div class="palette" id="palette"></div>
+  <div id="palettePreview"></div>
+  <div class="palette" id="palette"></div>
 
-Base Color:
-<input type="color" id="baseColor" value="#007aff"><br>
+  <!-- BASE CONTROLS -->
+  <div class="grid-2">
+    <div>Base: <input type="color" id="baseColor" value="#007aff"></div>
+    <div>Device: <select id="deviceSelector"><option value="pc">PC</option><option value="mobile">Mobile</option></select></div>
+    <div>W: <input type="number" id="width" value="1920" style="width:60px;"></div>
+    <div>H: <input type="number" id="height" value="1080" style="width:60px;"></div>
+  </div>
 
-Device:
-<select id="deviceSelector">
-  <option value="pc">PC (1920x1080)</option>
-  <option value="mobile">Mobile (1080x1920)</option>
-</select><br>
+  <!-- DARK MODE -->
+  <div class="toggleGroup">
+    <label>Dark mode</label><label class="switch"><input type="checkbox" id="darkModeSwitch" checked><span class="slider"></span></label>
+  </div>
 
-Width:
-<input type="number" id="width" value="1920" style="width:70px;">
-Height:
-<input type="number" id="height" value="1080" style="width:70px;"><br>
+  <!-- ========== LETTERS ========= -->
+  <div class="section-divider">🔤 Scattered letters</div>
+  <div class="toggleGroup">
+    <label>Show letters</label><label class="switch"><input type="checkbox" id="showLetters" checked><span class="slider"></span></label>
+    <label>Glow</label><label class="switch"><input type="checkbox" id="glow"><span class="slider"></span></label>
+    <label>Vertical</label><label class="switch"><input type="checkbox" id="vertical"><span class="slider"></span></label>
+  </div>
+  <div class="param-row">
+    <span>Size <input type="number" id="fontSize" value="20" style="width:60px;"></span>
+    <span>Density <input type="number" id="density" value="70" style="width:60px;"></span>
+    <span>Color <input type="color" id="textColor" value="#ffffff" style="width:60px;"></span>
+    <span>Custom <input type="text" id="customText" style="width:100px;" placeholder="文字"></span>
+  </div>
+  <div class="param-row">
+    <span>Position <select id="letterPosition">
+      <option value="center">Center</option>
+      <option value="top-left">TopL</option><option value="top-right">TopR</option>
+      <option value="bottom-left">BottomL</option><option value="bottom-right">BottomR</option>
+      <option value="left">Left</option><option value="right">Right</option>
+    </select></span>
+    <span>Font <select id="fontFamily"><option value="sans-serif">Sans</option><option value="serif">Serif</option><option value="cursive">Cursive</option></select></span>
+    <span>Rotate max <input type="range" id="rotateMax" min="0" max="45" value="0" style="width:80px;">°</span>
+    <span>Size var <input type="range" id="sizeVar" min="0" max="1" value="0.3" step="0.05" style="width:80px;"></span>
+    <span>Clustering <input type="range" id="clustering" min="0" max="1" value="0" style="width:80px;"></span>
+  </div>
 
-Letter Size:
-<input type="number" id="fontSize" value="20" style="width:60px;">
-Density:
-<input type="number" id="density" value="70" style="width:60px;">
-Letter Color:
-<input type="color" id="textColor" value="#ffffff"><br>
+  <!-- GRADIENT -->
+  <div class="section-divider">🌈 Gradient</div>
+  <div class="param-row">
+    <span>Dir <select id="direction"><option value="45deg" selected>Diagonal</option><option value="to right">→</option><option value="to bottom">↓</option></select></span>
+    <span>Shape <select id="gradientShape"><option value="linear">Linear</option><option value="radial">Radial</option></select></span>
+  </div>
 
-Custom Letters:
-<input type="text" id="customText" style="width:120px;"><br>
+  <!-- ========== TEXTURE & MATERIAL ========= -->
+  <div class="section-divider">📜 Texture & Material</div>
+  <div class="param-row">
+    <span>Paper <input type="range" id="paperIntensity" min="0" max="1" step="0.05" value="0.2" style="width:80px;"></span>
+    <span>Metallic <input type="range" id="metallic" min="0" max="1" step="0.05" value="0" style="width:80px;"></span>
+    <span>Emboss <input type="range" id="emboss" min="0" max="1" step="0.05" value="0" style="width:80px;"></span>
+  </div>
 
-Letter Position:
-<select id="letterPosition">
-<option value="center">Center</option>
-<option value="top-left">Top Left</option>
-<option value="top-right">Top Right</option>
-<option value="bottom-left">Bottom Left</option>
-<option value="bottom-right">Bottom Right</option>
-<option value="top-center">Top Center</option>
-<option value="bottom-center">Bottom Center</option>
-<option value="middle-left">Middle Left</option>
-<option value="middle-right">Middle Right</option>
-<option value="left">Left</option>
-<option value="right">Right</option>
-</select><br>
+  <!-- ========== COMPOSITION ========= -->
+  <div class="section-divider">⚖️ Composition</div>
+  <div class="toggleGroup">
+    <label>Rule of thirds</label><label class="switch"><input type="checkbox" id="ruleThirds"><span class="slider"></span></label>
+    <label>Vignette</label><label class="switch"><input type="checkbox" id="vignetteToggle"><span class="slider"></span></label>
+    <label>Light leaks</label><label class="switch"><input type="checkbox" id="lightLeakToggle"><span class="slider"></span></label>
+    <label>Framing</label><label class="switch"><input type="checkbox" id="framingToggle"><span class="slider"></span></label>
+  </div>
+  <div class="param-row">
+    <span>Vignette str <input type="range" id="vignetteStr" min="0" max="1" value="0.3" step="0.05" style="width:80px;"></span>
+    <span>Leak color <input type="color" id="leakColor" value="#ffaa66" style="width:50px;"></span>
+  </div>
 
-<!-- Dark Mode Toggle -->
-<div class="toggleGroup">
-  <label>Dark Mode</label>
-  <label class="switch"><input type="checkbox" id="darkModeSwitch" checked><span class="slider"></span></label>
-</div>
+  <!-- ========== COLOR & LIGHT with MASTER TOGGLE ========= -->
+  <div class="section-divider">✨ Color & light</div>
+  <div class="toggleGroup" style="justify-content:space-between;">
+    <span>Enable color FX</span><label class="switch"><input type="checkbox" id="colorFXMaster" checked><span class="slider"></span></label>
+  </div>
+  <div class="param-row">
+    <span>Preset <select id="gradientPreset"><option value="">Custom</option><option value="sunrise">Sunrise</option><option value="twilight">Twilight</option><option value="moonlight">Moonlight</option></select></span>
+    <span>Bloom <input type="range" id="bloom" min="0" max="1" value="0" step="0.05" style="width:80px;"></span>
+    <span>Prismatic <input type="range" id="prismatic" min="0" max="1" value="0" step="0.05" style="width:80px;"></span>
+  </div>
 
-<!-- Other toggles -->
-<div class="toggleGroup">
-  <label>Show Letters</label>
-  <label class="switch"><input type="checkbox" id="showLetters" checked><span class="slider"></span></label>
+  <!-- ========== MINIMALIST ELEMENTS (new) ========= -->
+  <div class="section-divider">⬜ Minimalist elements</div>
+  <div class="toggleGroup">
+    <label>Enable</label><label class="switch"><input type="checkbox" id="minimalToggle"><span class="slider"></span></label>
+  </div>
+  <div class="param-row">
+    <span>Type <select id="minimalType">
+      <option value="dots">Dots</option>
+      <option value="lines">Lines</option>
+      <option value="grid">Grid</option>
+      <option value="circles">Circles</option>
+      <option value="squares">Squares</option>
+    </select></span>
+    <span>Color <input type="color" id="minimalColor" value="#cccccc" style="width:60px;"></span>
+    <span>Size <input type="range" id="minimalSize" min="1" max="20" value="4" style="width:80px;"></span>
+    <span>Spacing <input type="range" id="minimalSpacing" min="5" max="100" value="30" style="width:80px;"></span>
+    <span>Opacity <input type="range" id="minimalOpacity" min="0" max="1" step="0.05" value="0.5" style="width:80px;"></span>
+  </div>
+  <div class="note">Clean geometric overlays – drawn after letters, before vignette.</div>
 
-  <label>Glow</label>
-  <label class="switch"><input type="checkbox" id="glow"><span class="slider"></span></label>
+  <!-- ========== SIGNATURE SEAL ========= -->
+  <div class="section-divider">🖋️ Signature seal</div>
+  <div class="toggleGroup">
+    <label>Enable seal</label><label class="switch"><input type="checkbox" id="sealToggle"><span class="slider"></span></label>
+  </div>
+  <div class="param-row">
+    <span>Seal kanji <input type="text" id="sealChar" value="波" style="width:60px;"></span>
+    <span>Seal color <input type="color" id="sealColor" value="#aa2222" style="width:60px;"></span>
+    <span>Size <input type="range" id="sealSize" min="20" max="80" value="40" style="width:80px;"></span>
+  </div>
 
-  <label>Vertical</label>
-  <label class="switch"><input type="checkbox" id="vertical"><span class="slider"></span></label>
-</div>
-
-Direction:
-<select id="direction">
-<option value="45deg" selected>Diagonal</option>
-<option value="to right">Left → Right</option>
-<option value="to bottom">Top → Bottom</option>
-</select>
-Shape:
-<select id="gradientShape">
-<option value="linear">Linear</option>
-<option value="radial">Radial</option>
-</select><br>
-
-<button class="action" onclick="generateNew()">New Palette</button>
-<button class="action" onclick="downloadWallpaper()">Download</button>
+  <!-- ACTION BUTTONS -->
+  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:15px;">
+    <button class="action" onclick="generateNew()">🎲 New palette</button>
+    <button class="action" onclick="randomizeAll()">✨ Randomize all</button>
+    <button class="action" onclick="downloadWallpaper()">⬇️ Download</button>
+  </div>
+  <div class="note">All organic & atmospheric layers removed. Only minimalist geometry added.</div>
 </div>
 
 <canvas id="previewCanvas" width="800" height="400"></canvas>
 
 <script>
-let palette=[], defaultChars="日本語東京京都山川火水風空愛夢桜龍心力光影未来忍者侍北海道花月星海";
+(function() {
+  // ----- CONSTANTS & DEFAULTS -----
+  const defaultChars = "日本語東京京都山川火水風空愛夢桜龍心力光影未来忍者侍北海道花月星海";
+  let palette = [];
 
-/* Dark mode */
-document.getElementById("darkModeSwitch").addEventListener("change", e=>{
-  document.body.className = e.target.checked ? "dark" : "light";
-});
+  // ----- HELPER FUNCTIONS -----
+  function randomColor() { return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'); }
+  function randomChar(src) { return src[Math.floor(Math.random()*src.length)]; }
 
-/* Device Selector */
-document.getElementById("deviceSelector").addEventListener("change", e=>{
-  if(e.target.value==="pc"){ document.getElementById("width").value=1920; document.getElementById("height").value=1080; }
-  else{ document.getElementById("width").value=1080; document.getElementById("height").value=1920; }
-  drawPreview();
-});
-
-/* Palette */
-function randomColor(){ return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'); }
-function randomChar(src){ return src[Math.floor(Math.random()*src.length)]; }
-function generatePalette(){ palette=[]; for(let i=0;i<5;i++) palette.push(randomColor()); }
-function renderPalette(){
-  const container=document.getElementById("palette");
-  container.innerHTML="";
-  palette.forEach((color,index)=>{
-    const box=document.createElement("div"); box.className="color-box"; box.style.background=color;
-    box.onclick=()=>{ document.getElementById("textColor").value=color; drawPreview(); };
-    const picker=document.createElement("input"); picker.type="color"; picker.value=color;
-    picker.oninput=(e)=>{ palette[index]=e.target.value; box.style.background=e.target.value; updatePalettePreview(); drawPreview(); };
-    container.appendChild(box); container.appendChild(picker);
-  });
-  updatePalettePreview();
-}
-function updatePalettePreview(){ document.getElementById("palettePreview").style.background=`linear-gradient(to right, ${palette.join(",")})`; }
-document.getElementById("baseColor").addEventListener("input", ()=>{
-  const base=document.getElementById("baseColor").value; palette=[]; for(let i=0;i<5;i++){
-    let r=parseInt(base.substr(1,2),16)+Math.floor(Math.random()*40-20);
-    let g=parseInt(base.substr(3,2),16)+Math.floor(Math.random()*40-20);
-    let b=parseInt(base.substr(5,2),16)+Math.floor(Math.random()*40-20);
-    r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
-    palette.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
+  // ----- PALETTE -----
+  function generatePalette() { palette = []; for(let i=0;i<5;i++) palette.push(randomColor()); }
+  function renderPalette() {
+    const container = document.getElementById("palette");
+    container.innerHTML = "";
+    palette.forEach((color, index) => {
+      const box = document.createElement("div"); box.className = "color-box"; box.style.background = color;
+      box.onclick = () => { document.getElementById("textColor").value = color; drawPreview(); };
+      const picker = document.createElement("input"); picker.type = "color"; picker.value = color;
+      picker.oninput = (e) => { palette[index] = e.target.value; box.style.background = e.target.value; updatePalettePreview(); drawPreview(); };
+      container.appendChild(box); container.appendChild(picker);
+    });
+    updatePalettePreview();
   }
-  renderPalette(); drawPreview();
-});
+  function updatePalettePreview() { document.getElementById("palettePreview").style.background = `linear-gradient(to right, ${palette.join(",")})`; }
 
-/* Gradient */
-function createGradient(ctx,w,h){
-  const shape=document.getElementById("gradientShape").value;
-  const dir=document.getElementById("direction").value;
-  let gradient;
-  if(shape==="radial") gradient=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.min(w,h)/2);
-  else if(dir==="to right") gradient=ctx.createLinearGradient(0,0,w,0);
-  else if(dir==="to bottom") gradient=ctx.createLinearGradient(0,0,0,h);
-  else gradient=ctx.createLinearGradient(0,0,w,h);
-  palette.forEach((c,i)=>{ gradient.addColorStop(i/(palette.length-1),c); });
-  return gradient;
-}
-
-/* Draw preview */
-function drawPreview(){
-  const canvas=document.getElementById("previewCanvas");
-  const ctx=canvas.getContext("2d");
-  canvas.width=canvas.offsetWidth;
-  canvas.height=canvas.offsetHeight;
-  const w=canvas.width, h=canvas.height;
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle=createGradient(ctx,w,h); ctx.fillRect(0,0,w,h);
-
-  if(!document.getElementById("showLetters").checked) return;
-  const fontSize=parseInt(document.getElementById("fontSize").value);
-  const density=parseInt(document.getElementById("density").value);
-  const color=document.getElementById("textColor").value;
-  const chars=document.getElementById("customText").value.trim()||defaultChars;
-  const glow=document.getElementById("glow").checked;
-  const vertical=document.getElementById("vertical").checked;
-
-  const position=document.getElementById("letterPosition").value;
-  let offsetX=w/2, offsetY=h/2;
-  if(position.includes("top")) offsetY=0.2*h;
-  if(position.includes("bottom")) offsetY=0.8*h;
-  if(position.includes("left")) offsetX=0.2*w;
-  if(position.includes("right")) offsetX=0.8*w;
-  if(position==="left") offsetX=0.2*w, offsetY=h/2;
-  if(position==="right") offsetX=0.8*w, offsetY=h/2;
-
-  ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font=fontSize+"px sans-serif";
-  ctx.shadowBlur = glow ? 10 : 0; ctx.shadowColor = glow ? color : "transparent";
-
-  for(let x=0;x<w;x+=density){
-    for(let y=0;y<h;y+=density){
-      ctx.save(); ctx.globalAlpha=Math.random()*0.6+0.3;
-      ctx.translate(offsetX + x - w/2, offsetY + y - h/2);
-      if(vertical) ctx.rotate(Math.PI/2);
-      ctx.fillStyle=color; ctx.fillText(randomChar(chars),0,0); ctx.restore();
+  // baseColor listener
+  document.getElementById("baseColor").addEventListener("input", () => {
+    const base = document.getElementById("baseColor").value;
+    palette = [];
+    for(let i=0;i<5;i++) {
+      let r = parseInt(base.substr(1,2),16) + Math.floor(Math.random()*40-20);
+      let g = parseInt(base.substr(3,2),16) + Math.floor(Math.random()*40-20);
+      let b = parseInt(base.substr(5,2),16) + Math.floor(Math.random()*40-20);
+      r = Math.max(0,Math.min(255,r)); g = Math.max(0,Math.min(255,g)); b = Math.max(0,Math.min(255,b));
+      palette.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
     }
+    renderPalette(); drawPreview();
+  });
+
+  // device selector
+  document.getElementById("deviceSelector").addEventListener("change", e => {
+    if(e.target.value==="pc") { document.getElementById("width").value=1920; document.getElementById("height").value=1080; }
+    else { document.getElementById("width").value=1080; document.getElementById("height").value=1920; }
+    drawPreview();
+  });
+
+  // dark mode
+  document.getElementById("darkModeSwitch").addEventListener("change", e => {
+    document.body.className = e.target.checked ? "dark" : "light";
+  });
+
+  // gradient creator
+  function createGradient(ctx, w, h) {
+    const shape = document.getElementById("gradientShape").value;
+    const dir = document.getElementById("direction").value;
+    let gradient;
+    if(shape === "radial") gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.min(w,h)/2);
+    else if(dir === "to right") gradient = ctx.createLinearGradient(0,0,w,0);
+    else if(dir === "to bottom") gradient = ctx.createLinearGradient(0,0,0,h);
+    else gradient = ctx.createLinearGradient(0,0,w,h);
+    palette.forEach((c,i) => { gradient.addColorStop(i/(palette.length-1), c); });
+    return gradient;
   }
-  ctx.globalAlpha=1;
-}
 
-/* Download */
-function downloadWallpaper(){
-  const width=parseInt(document.getElementById("width").value);
-  const height=parseInt(document.getElementById("height").value);
-  const canvasDL=document.createElement("canvas"); canvasDL.width=width; canvasDL.height=height;
-  const ctx=canvasDL.getContext("2d");
-  ctx.fillStyle=createGradient(ctx,width,height); ctx.fillRect(0,0,width,height);
+  // preset gradient override
+  function applyGradientPreset() {
+    const preset = document.getElementById("gradientPreset").value;
+    if(preset === "sunrise") document.getElementById("baseColor").value = "#ff7e5f";
+    else if(preset === "twilight") document.getElementById("baseColor").value = "#2b2b4f";
+    else if(preset === "moonlight") document.getElementById("baseColor").value = "#1f2f3f";
+    document.getElementById("baseColor").dispatchEvent(new Event('input'));
+  }
 
-  if(document.getElementById("showLetters").checked){
-    const fontSize=parseInt(document.getElementById("fontSize").value);
-    const density=parseInt(document.getElementById("density").value);
-    const color=document.getElementById("textColor").value;
-    const chars=document.getElementById("customText").value.trim()||defaultChars;
-    const glow=document.getElementById("glow").checked;
-    const vertical=document.getElementById("vertical").checked;
-    const position=document.getElementById("letterPosition").value;
-
-    let offsetX=width/2, offsetY=height/2;
-    if(position.includes("top")) offsetY=0.2*height;
-    if(position.includes("bottom")) offsetY=0.8*height;
-    if(position.includes("left")) offsetX=0.2*width;
-    if(position.includes("right")) offsetX=0.8*width;
-    if(position==="left") offsetX=0.2*width, offsetY=height/2;
-    if(position==="right") offsetX=0.8*width, offsetY=height/2;
-
-    ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.font=fontSize+"px sans-serif";
-    ctx.shadowBlur = glow ? 10 : 0; ctx.shadowColor = glow ? color : "transparent";
-
-    for(let x=0;x<width;x+=density){
-      for(let y=0;y<height;y+=density){
-        ctx.save(); ctx.globalAlpha=Math.random()*0.6+0.3;
-        ctx.translate(offsetX + x - width/2, offsetY + y - height/2);
-        if(vertical) ctx.rotate(Math.PI/2);
-        ctx.fillStyle=color; ctx.fillText(randomChar(chars),0,0); ctx.restore();
+  // ----- EXISTING LAYER FUNCTIONS (no organic/atmo) -----
+  function applyPaperTexture(ctx, w, h) {
+    const intensity = parseFloat(document.getElementById("paperIntensity").value);
+    if(intensity <= 0) return;
+    const imageData = ctx.getImageData(0,0,w,h);
+    const data = imageData.data;
+    for(let i=0; i<data.length; i+=4) {
+      let noise = (Math.random() * 2 - 1) * intensity * 30;
+      data[i] = Math.min(255, Math.max(0, data[i] + noise));
+      data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
+      data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
+    }
+    ctx.putImageData(imageData,0,0);
+  }
+  function applyMetallic(ctx, w, h) {
+    const metallic = parseFloat(document.getElementById("metallic").value);
+    if(metallic <= 0) return;
+    ctx.fillStyle = `rgba(255,255,200,${metallic*0.1})`;
+    ctx.fillRect(0,0,w,h);
+  }
+  function applyEmboss(ctx, w, h) {
+    const emboss = parseFloat(document.getElementById("emboss").value);
+    if(emboss <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = emboss * 0.2;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    for(let i=0; i<10; i++) {
+      ctx.beginPath();
+      ctx.moveTo(Math.random()*w, Math.random()*h);
+      ctx.lineTo(Math.random()*w, Math.random()*h);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawRuleOfThirds(ctx, w, h) {
+    if(!document.getElementById("ruleThirds").checked) return;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+    ctx.lineWidth = 1;
+    for(let i=1; i<3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(w * i/3, 0); ctx.lineTo(w * i/3, h);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, h * i/3); ctx.lineTo(w, h * i/3);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function applyVignette(ctx, w, h) {
+    if(!document.getElementById("vignetteToggle").checked) return;
+    const strength = parseFloat(document.getElementById("vignetteStr").value);
+    const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w,h)/2);
+    gradient.addColorStop(0, "rgba(0,0,0,0)");
+    gradient.addColorStop(0.8, `rgba(0,0,0,${strength*0.5})`);
+    gradient.addColorStop(1, `rgba(0,0,0,${strength})`);
+    ctx.fillStyle = gradient;
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillRect(0,0,w,h);
+    ctx.globalCompositeOperation = "source-over";
+  }
+  function applyLightLeak(ctx, w, h) {
+    if(!document.getElementById("lightLeakToggle").checked) return;
+    const color = document.getElementById("leakColor").value;
+    const leakGrad = ctx.createLinearGradient(0,0,w*0.3,0);
+    leakGrad.addColorStop(0, color + "80");
+    leakGrad.addColorStop(1, "transparent");
+    ctx.fillStyle = leakGrad;
+    ctx.fillRect(0,0,w*0.5,h);
+  }
+  function applyFraming(ctx, w, h) {
+    if(!document.getElementById("framingToggle").checked) return;
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 12;
+    ctx.strokeRect(6,6,w-12,h-12);
+    ctx.restore();
+  }
+  function applyBloom(ctx, w, h) {
+    if(!document.getElementById("colorFXMaster").checked) return;
+    const bloomInt = parseFloat(document.getElementById("bloom").value);
+    if(bloomInt <= 0) return;
+    ctx.save();
+    ctx.globalAlpha = bloomInt * 0.5;
+    ctx.filter = "blur(10px)";
+    ctx.drawImage(ctx.canvas, 0, 0);
+    ctx.filter = "none";
+    ctx.restore();
+  }
+  function applyPrismatic(ctx, w, h) {
+    if(!document.getElementById("colorFXMaster").checked) return;
+    const prism = parseFloat(document.getElementById("prismatic").value);
+    if(prism <= 0) return;
+    const imageData = ctx.getImageData(0,0,w,h);
+    const data = imageData.data;
+    for(let i=0; i<data.length; i+=4) {
+      if(i+4 < data.length) {
+        data[i] = Math.min(255, data[i] + prism*30);
       }
     }
+    ctx.putImageData(imageData,0,0);
+  }
+  function drawSeal(ctx, w, h) {
+    if(!document.getElementById("sealToggle").checked) return;
+    const kanji = document.getElementById("sealChar").value || "波";
+    const color = document.getElementById("sealColor").value;
+    const size = parseInt(document.getElementById("sealSize").value, 10);
+    ctx.save();
+    ctx.font = `${size}px serif`;
+    ctx.fillStyle = color;
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 0.9;
+    ctx.fillText(kanji, w - size*1.2, h - size*0.3);
+    ctx.restore();
+  }
+  function drawLetters(ctx, w, h) {
+    if(!document.getElementById("showLetters").checked) return;
+    const fontSizeBase = parseInt(document.getElementById("fontSize").value);
+    const density = parseInt(document.getElementById("density").value);
+    const color = document.getElementById("textColor").value;
+    const chars = document.getElementById("customText").value.trim() || defaultChars;
+    const glow = document.getElementById("glow").checked;
+    const vertical = document.getElementById("vertical").checked;
+    const sizeVar = parseFloat(document.getElementById("sizeVar").value);
+    const rotateMax = parseFloat(document.getElementById("rotateMax").value) * Math.PI/180;
+    const clustering = parseFloat(document.getElementById("clustering").value);
+    const fontFamily = document.getElementById("fontFamily").value;
+    const position = document.getElementById("letterPosition").value;
+    let offsetX = w/2, offsetY = h/2;
+    if(position.includes("top")) offsetY = 0.2*h;
+    if(position.includes("bottom")) offsetY = 0.8*h;
+    if(position.includes("left")) offsetX = 0.2*w;
+    if(position.includes("right")) offsetX = 0.8*w;
+    if(position === "left") { offsetX = 0.2*w; offsetY = h/2; }
+    if(position === "right") { offsetX = 0.8*w; offsetY = h/2; }
+    ctx.save();
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.shadowBlur = glow ? 10 : 0; ctx.shadowColor = glow ? color : "transparent";
+    for(let x=0; x<w; x+=density) {
+      for(let y=0; y<h; y+=density) {
+        if(Math.random() < clustering*0.8) continue;
+        ctx.save();
+        ctx.globalAlpha = Math.random()*0.6+0.3;
+        let size = fontSizeBase * (1 + sizeVar * (Math.random()*2-1));
+        ctx.font = `${size}px ${fontFamily}`;
+        if(rotateMax > 0) ctx.rotate((Math.random()*2-1)*rotateMax);
+        let dx = offsetX + x - w/2 + (clustering * 20 * (Math.random()-0.5));
+        let dy = offsetY + y - h/2 + (clustering * 20 * (Math.random()-0.5));
+        ctx.translate(dx, dy);
+        if(vertical) ctx.rotate(Math.PI/2);
+        ctx.fillStyle = color;
+        ctx.fillText(randomChar(chars), 0, 0);
+        ctx.restore();
+      }
+    }
+    ctx.restore();
   }
 
-  const link=document.createElement("a"); link.download=`wallpaper-${width}x${height}.png`;
-  link.href=canvasDL.toDataURL("image/png"); link.click();
-}
+  // ========== NEW MINIMALIST ELEMENTS ==========
+  function drawMinimalist(ctx, w, h) {
+    if(!document.getElementById("minimalToggle").checked) return;
+    const type = document.getElementById("minimalType").value;
+    const color = document.getElementById("minimalColor").value;
+    const baseSize = parseFloat(document.getElementById("minimalSize").value);
+    const spacing = parseFloat(document.getElementById("minimalSpacing").value);
+    const opacity = parseFloat(document.getElementById("minimalOpacity").value);
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = baseSize/2;
+    ctx.globalAlpha = opacity;
 
-/* Init */
-function generateNew(){ generatePalette(); renderPalette(); drawPreview(); }
-document.querySelectorAll("input, select").forEach(el=>el.addEventListener("input", drawPreview));
-generateNew();
+    if(type === "dots") {
+      for(let x=spacing/2; x<w; x+=spacing) {
+        for(let y=spacing/2; y<h; y+=spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, baseSize/2, 0, 2*Math.PI);
+          ctx.fill();
+        }
+      }
+    } else if(type === "lines") {
+      ctx.beginPath();
+      for(let x=spacing/2; x<w; x+=spacing) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+      for(let y=spacing/2; y<h; y+=spacing) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    } else if(type === "grid") {
+      ctx.beginPath();
+      for(let x=spacing; x<w; x+=spacing) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+      for(let y=spacing; y<h; y+=spacing) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    } else if(type === "circles") {
+      for(let x=spacing; x<w; x+=spacing) {
+        for(let y=spacing; y<h; y+=spacing) {
+          ctx.beginPath();
+          ctx.arc(x, y, baseSize, 0, 2*Math.PI);
+          ctx.stroke();
+        }
+      }
+    } else if(type === "squares") {
+      for(let x=spacing; x<w; x+=spacing) {
+        for(let y=spacing; y<h; y+=spacing) {
+          ctx.strokeRect(x - baseSize/2, y - baseSize/2, baseSize, baseSize);
+        }
+      }
+    }
+    ctx.restore();
+  }
+
+  // ----- MAIN DRAW PREVIEW (organic/atmo removed) -----
+  function drawPreview() {
+    const canvas = document.getElementById("previewCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+
+    // gradient background
+    ctx.fillStyle = createGradient(ctx, w, h);
+    ctx.fillRect(0,0,w,h);
+
+    // material effects
+    applyMetallic(ctx, w, h);
+    applyEmboss(ctx, w, h);
+
+    // letters (mid-ground)
+    drawLetters(ctx, w, h);
+
+    // MINIMALIST ELEMENTS (after letters, before composition)
+    drawMinimalist(ctx, w, h);
+
+    // composition / light
+    applyVignette(ctx, w, h);
+    applyLightLeak(ctx, w, h);
+    applyFraming(ctx, w, h);
+    applyBloom(ctx, w, h);
+    applyPrismatic(ctx, w, h);
+    applyPaperTexture(ctx, w, h);
+
+    // signature seal (on top)
+    drawSeal(ctx, w, h);
+
+    // guides last
+    drawRuleOfThirds(ctx, w, h);
+  }
+
+  // ----- DOWNLOAD (full resolution) -----
+  function downloadWallpaper() {
+    const width = parseInt(document.getElementById("width").value);
+    const height = parseInt(document.getElementById("height").value);
+    const canvasDL = document.createElement("canvas");
+    canvasDL.width = width; canvasDL.height = height;
+    const ctx = canvasDL.getContext("2d");
+
+    ctx.fillStyle = createGradient(ctx, width, height);
+    ctx.fillRect(0,0,width,height);
+
+    applyMetallic(ctx, width, height);
+    applyEmboss(ctx, width, height);
+
+    drawLetters(ctx, width, height);
+
+    drawMinimalist(ctx, width, height);
+
+    applyVignette(ctx, width, height);
+    applyLightLeak(ctx, width, height);
+    applyFraming(ctx, width, height);
+    applyBloom(ctx, width, height);
+    applyPrismatic(ctx, width, height);
+    applyPaperTexture(ctx, width, height);
+
+    drawSeal(ctx, width, height);
+    drawRuleOfThirds(ctx, width, height);
+
+    const link = document.createElement("a");
+    link.download = `wallpaper-${width}x${height}.png`;
+    link.href = canvasDL.toDataURL("image/png");
+    link.click();
+  }
+
+  // randomize all parameters (updated for minimal)
+  function randomizeAll() {
+    document.getElementById("baseColor").value = randomColor();
+    document.getElementById("baseColor").dispatchEvent(new Event('input'));
+    document.getElementById("paperIntensity").value = Math.random()*0.5;
+    document.getElementById("metallic").value = Math.random()*0.5;
+    document.getElementById("emboss").value = Math.random()*0.5;
+    document.getElementById("vignetteStr").value = Math.random()*0.7;
+    document.getElementById("bloom").value = Math.random()*0.5;
+    document.getElementById("prismatic").value = Math.random()*0.4;
+    // letters
+    document.getElementById("showLetters").checked = Math.random()>0.2;
+    document.getElementById("glow").checked = Math.random()>0.5;
+    document.getElementById("vertical").checked = Math.random()>0.8;
+    document.getElementById("fontSize").value = 15 + Math.floor(Math.random()*30);
+    document.getElementById("density").value = 40 + Math.floor(Math.random()*60);
+    document.getElementById("textColor").value = randomColor();
+    document.getElementById("rotateMax").value = Math.random()*30;
+    document.getElementById("sizeVar").value = Math.random()*0.8;
+    document.getElementById("clustering").value = Math.random()*0.8;
+    // minimalist
+    document.getElementById("minimalToggle").checked = Math.random()>0.5;
+    const types = ["dots","lines","grid","circles","squares"];
+    document.getElementById("minimalType").value = types[Math.floor(Math.random()*types.length)];
+    document.getElementById("minimalColor").value = randomColor();
+    document.getElementById("minimalSize").value = 2 + Math.random()*15;
+    document.getElementById("minimalSpacing").value = 10 + Math.random()*80;
+    document.getElementById("minimalOpacity").value = 0.2 + Math.random()*0.7;
+    // seal
+    document.getElementById("sealToggle").checked = Math.random()>0.3;
+    document.getElementById("sealChar").value = ["波","桜","心","夢","光"][Math.floor(Math.random()*5)];
+    document.getElementById("sealColor").value = randomColor();
+    document.getElementById("sealSize").value = 30 + Math.random()*40;
+    // composition toggles
+    document.getElementById("vignetteToggle").checked = Math.random()>0.5;
+    document.getElementById("lightLeakToggle").checked = Math.random()>0.5;
+    document.getElementById("framingToggle").checked = Math.random()>0.5;
+    document.getElementById("ruleThirds").checked = Math.random()>0.5;
+    document.getElementById("colorFXMaster").checked = Math.random()>0.3;
+    drawPreview();
+  }
+
+  // event listeners
+  document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", drawPreview));
+  document.querySelectorAll("input[type=checkbox]").forEach(el => el.addEventListener("change", drawPreview));
+  document.getElementById("gradientPreset").addEventListener("change", applyGradientPreset);
+
+  // expose functions
+  window.generateNew = function() { generatePalette(); renderPalette(); drawPreview(); };
+  window.downloadWallpaper = downloadWallpaper;
+  window.randomizeAll = randomizeAll;
+
+  // initial generation
+  generatePalette();
+  renderPalette();
+  drawPreview();
+})();
 </script>
 </body>
 </html>
+
