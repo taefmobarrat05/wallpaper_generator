@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palette & Gradient Wallpaper Generator Advanced</title>
+
+<style>
+body {
+    margin:0;
+    font-family:-apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    padding:20px;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* AMOLED DEFAULT */
+body.dark {
+    background:#000000;
+    color:#ffffff;
+}
+
+body.light {
+    background:#f9f9f9;
+    color:#000;
+}
+
+h1 {
+    text-align:center;
+    font-weight:600;
+    font-size:28px;
+    margin-bottom:20px;
+}
+
+.card {
+    background:#000;
+    padding:20px;
+    border-radius:20px;
+    border:1px solid #111;
+    margin-bottom:20px;
+}
+
+body.light .card {
+    background:white;
+    border:none;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.palette {
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-bottom:15px;
+}
+
+.color-item {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+}
+
+.color-box {
+    width:60px;
+    height:60px;
+    border-radius:12px;
+    border:2px solid #222;
+}
+
+.controls {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+button, select, input {
+    padding:10px 16px;
+    border-radius:12px;
+    border:1px solid #222;
+    font-size:14px;
+}
+
+button {
+    cursor:pointer;
+    background:#111;
+    color:white;
+}
+
+button:hover {
+    background:#222;
+}
+
+canvas {
+    width:100%;
+    height:400px;
+    border-radius:20px;
+    border:1px solid #111;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width:50px;
+    height:28px;
+}
+
+.switch input {
+    opacity:0;
+    width:0;
+    height:0;
+}
+
+.slider {
+    position:absolute;
+    cursor:pointer;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:#222;
+    border-radius:28px;
+}
+
+.slider:before {
+    position:absolute;
+    content:"";
+    height:22px;
+    width:22px;
+    left:3px;
+    bottom:3px;
+    background:white;
+    border-radius:50%;
+    transition:.3s;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+</style>
+</head>
+
+<body class="dark">
+
+<h1>Palette & Gradient Wallpaper Generator</h1>
+
+<div class="card">
+<div class="palette" id="palette"></div>
+
+<div class="controls">
+
+<button onclick="generateNew()">Generate New Palette</button>
+
+<select id="direction" onchange="drawPreview()">
+<option value="to right">Left → Right</option>
+<option value="to left">Right → Left</option>
+<option value="to bottom">Top → Bottom</option>
+<option value="to top">Bottom → Top</option>
+<option value="45deg">Diagonal</option>
+</select>
+
+<input type="number" id="width" value="1920" />
+<input type="number" id="height" value="1080" />
+
+<label>Letter Size</label>
+<input type="number" id="fontSize" value="20" min="10" max="100" oninput="drawPreview()" />
+
+<label>Density</label>
+<input type="number" id="density" value="70" min="30" max="200" oninput="drawPreview()" />
+
+<label>Letter Color</label>
+<input type="color" id="textColor" value="#ffffff" onchange="drawPreview()" />
+
+<label>Custom Letters</label>
+<input type="text" id="customText" oninput="drawPreview()" />
+
+<label>Show Letters</label>
+<label class="switch">
+<input type="checkbox" id="showLetters" checked onchange="drawPreview()">
+<span class="slider"></span>
+</label>
+
+<label>Glow</label>
+<label class="switch">
+<input type="checkbox" id="glow" onchange="drawPreview()">
+<span class="slider"></span>
+</label>
+
+<label>Vertical</label>
+<label class="switch">
+<input type="checkbox" id="vertical" onchange="drawPreview()">
+<span class="slider"></span>
+</label>
+
+<label>Blur Background</label>
+<label class="switch">
+<input type="checkbox" id="blur" onchange="drawPreview()">
+<span class="slider"></span>
+</label>
+
+<label>Gradient Shape</label>
+<select id="gradientShape" onchange="drawPreview()">
+<option value="linear">Linear</option>
+<option value="radial">Radial</option>
+</select>
+
+<label>Wallpaper Base Color</label>
+<input type="color" id="baseColor" value="#007aff" onchange="applyBaseColorGradient()" />
+
+<button onclick="downloadWallpaper()">Download</button>
+
+</div>
+</div>
+
+<div class="card">
+<canvas id="previewCanvas" width="800" height="400"></canvas>
+</div>
+
+<script>
+let palette=[];
+const japaneseChars="日本語東京京都山川火水風空愛夢桜龍心力光影未来忍者侍北海道花月星海";
+
+function randomChar(source){
+return source[Math.floor(Math.random()*source.length)];
+}
+
+function randomColor(){
+return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+}
+
+function generatePalette(count=5){
+palette=[];
+for(let i=0;i<count;i++) palette.push(randomColor());
+}
+
+function renderPalette(){
+const container=document.getElementById("palette");
+container.innerHTML="";
+palette.forEach((color,index)=>{
+const wrapper=document.createElement("div");
+wrapper.className="color-item";
+const div=document.createElement("div");
+div.className="color-box";
+div.style.backgroundColor=color;
+const input=document.createElement("input");
+input.type="color";
+input.value=color;
+input.oninput=(e)=>{palette[index]=e.target.value;drawPreview();};
+wrapper.appendChild(div);
+wrapper.appendChild(input);
+container.appendChild(wrapper);
+});
+}
+
+function applyBaseColorGradient(){
+const base=document.getElementById("baseColor").value;
+palette=[];
+for(let i=0;i<5;i++){
+let r=parseInt(base.substr(1,2),16)+Math.floor((Math.random()*40-20));
+let g=parseInt(base.substr(3,2),16)+Math.floor((Math.random()*40-20));
+let b=parseInt(base.substr(5,2),16)+Math.floor((Math.random()*40-20));
+r=Math.max(0,Math.min(255,r));
+g=Math.max(0,Math.min(255,g));
+b=Math.max(0,Math.min(255,b));
+palette.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
+}
+renderPalette();
+drawPreview();
+}
+
+function createGradient(ctx,width,height,direction,shape){
+let gradient;
+
+if(shape==="radial"){
+gradient=ctx.createRadialGradient(width/2,height/2,0,width/2,height/2,Math.min(width,height)/2);
+} else {
+if(direction==="to right") gradient=ctx.createLinearGradient(0,0,width,0);
+else if(direction==="to left") gradient=ctx.createLinearGradient(width,0,0,0);
+else if(direction==="to bottom") gradient=ctx.createLinearGradient(0,0,0,height);
+else if(direction==="to top") gradient=ctx.createLinearGradient(0,height,0,0);
+else gradient=ctx.createLinearGradient(0,0,width,height);
+}
+
+palette.forEach((color,index)=>{
+gradient.addColorStop(index/(palette.length-1),color);
+});
+
+return gradient;
+}
+
+function drawLetters(ctx,width,height,fontSize,density,textColor,charSource,glow,vertical,show){
+if(!show) return;
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+for(let x=0;x<width;x+=density){
+for(let y=0;y<height;y+=density){
+ctx.save();
+ctx.globalAlpha=Math.random()*0.5+0.3;
+ctx.translate(x,y);
+if(vertical) ctx.rotate(Math.PI/2);
+ctx.shadowBlur=glow?10:0;
+ctx.shadowColor=glow?textColor:"transparent";
+ctx.fillStyle=textColor;
+ctx.font=fontSize+"px sans-serif";
+ctx.fillText(randomChar(charSource),0,0);
+ctx.restore();
+}
+}
+
+ctx.globalAlpha=1;
+}
+
+function drawPreview(){
+const canvas=document.getElementById("previewCanvas");
+canvas.width=canvas.offsetWidth;
+canvas.height=canvas.offsetHeight;
+const ctx=canvas.getContext("2d");
+
+const width=canvas.width;
+const height=canvas.height;
+
+const direction=document.getElementById("direction").value;
+const shape=document.getElementById("gradientShape").value;
+
+ctx.clearRect(0,0,width,height);
+
+ctx.fillStyle=createGradient(ctx,width,height,direction,shape);
+ctx.fillRect(0,0,width,height);
+
+drawLetters(
+ctx,
+width,
+height,
+parseInt(document.getElementById("fontSize").value),
+parseInt(document.getElementById("density").value),
+document.getElementById("textColor").value,
+document.getElementById("customText").value.trim() || japaneseChars,
+document.getElementById("glow").checked,
+document.getElementById("vertical").checked,
+document.getElementById("showLetters").checked
+);
+}
+
+function generateNew(){
+generatePalette();
+renderPalette();
+drawPreview();
+}
+
+function downloadWallpaper(){
+const width=parseInt(document.getElementById('width').value);
+const height=parseInt(document.getElementById('height').value);
+
+const canvas=document.createElement('canvas');
+canvas.width=width;
+canvas.height=height;
+const ctx=canvas.getContext('2d');
+
+ctx.fillStyle=createGradient(ctx,width,height,"to right","linear");
+ctx.fillRect(0,0,width,height);
+
+drawLetters(
+ctx,width,height,
+parseInt(document.getElementById("fontSize").value),
+parseInt(document.getElementById("density").value),
+document.getElementById("textColor").value,
+document.getElementById("customText").value.trim() || japaneseChars,
+document.getElementById("glow").checked,
+document.getElementById("vertical").checked,
+document.getElementById("showLetters").checked
+);
+
+const link=document.createElement('a');
+link.download=`wallpaper-${width}x${height}.png`;
+link.href=canvas.toDataURL('image/png');
+link.click();
+}
+
+generateNew();
+</script>
+
+</body>
+</html>
