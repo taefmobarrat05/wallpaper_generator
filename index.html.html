@@ -45,11 +45,17 @@ body.light .card {
     box-shadow:0 10px 25px rgba(0,0,0,0.08);
 }
 
+.palette-container {
+    display:flex;
+    align-items:center;
+    gap:20px;
+    margin-bottom:15px;
+}
+
 .palette {
     display:flex;
     gap:15px;
     flex-wrap:wrap;
-    margin-bottom:15px;
 }
 
 .color-item {
@@ -88,6 +94,13 @@ button {
 
 button:hover {
     background:#222;
+}
+
+/* Smaller Custom Letter Box */
+#customText {
+    width:120px;
+    padding:8px 10px;
+    font-size:13px;
 }
 
 canvas {
@@ -144,7 +157,15 @@ input:checked + .slider:before {
 <h1>Palette & Gradient Wallpaper Generator</h1>
 
 <div class="card">
-<div class="palette" id="palette"></div>
+
+<!-- Palette + Base Color in one row -->
+<div class="palette-container">
+    <div class="palette" id="palette"></div>
+    <div>
+        <label>Wallpaper Base Color</label><br>
+        <input type="color" id="baseColor" value="#007aff" onchange="applyBaseColorGradient()" />
+    </div>
+</div>
 
 <div class="controls">
 
@@ -203,9 +224,6 @@ input:checked + .slider:before {
 <option value="radial">Radial</option>
 </select>
 
-<label>Wallpaper Base Color</label>
-<input type="color" id="baseColor" value="#007aff" onchange="applyBaseColorGradient()" />
-
 <button onclick="downloadWallpaper()">Download</button>
 
 </div>
@@ -220,165 +238,178 @@ let palette=[];
 const japaneseChars="日本語東京京都山川火水風空愛夢桜龍心力光影未来忍者侍北海道花月星海";
 
 function randomChar(source){
-return source[Math.floor(Math.random()*source.length)];
+    return source[Math.floor(Math.random()*source.length)];
 }
 
 function randomColor(){
-return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+    return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
 }
 
 function generatePalette(count=5){
-palette=[];
-for(let i=0;i<count;i++) palette.push(randomColor());
+    palette=[];
+    for(let i=0;i<count;i++) palette.push(randomColor());
 }
 
 function renderPalette(){
-const container=document.getElementById("palette");
-container.innerHTML="";
-palette.forEach((color,index)=>{
-const wrapper=document.createElement("div");
-wrapper.className="color-item";
-const div=document.createElement("div");
-div.className="color-box";
-div.style.backgroundColor=color;
-const input=document.createElement("input");
-input.type="color";
-input.value=color;
-input.oninput=(e)=>{palette[index]=e.target.value;drawPreview();};
-wrapper.appendChild(div);
-wrapper.appendChild(input);
-container.appendChild(wrapper);
-});
+    const container=document.getElementById("palette");
+    container.innerHTML="";
+    palette.forEach((color,index)=>{
+        const wrapper=document.createElement("div");
+        wrapper.className="color-item";
+        const div=document.createElement("div");
+        div.className="color-box";
+        div.style.backgroundColor=color;
+        const input=document.createElement("input");
+        input.type="color";
+        input.value=color;
+        input.oninput=(e)=>{
+            palette[index]=e.target.value;
+            div.style.backgroundColor=e.target.value;
+            drawPreview();
+        };
+        wrapper.appendChild(div);
+        wrapper.appendChild(input);
+        container.appendChild(wrapper);
+    });
 }
 
 function applyBaseColorGradient(){
-const base=document.getElementById("baseColor").value;
-palette=[];
-for(let i=0;i<5;i++){
-let r=parseInt(base.substr(1,2),16)+Math.floor((Math.random()*40-20));
-let g=parseInt(base.substr(3,2),16)+Math.floor((Math.random()*40-20));
-let b=parseInt(base.substr(5,2),16)+Math.floor((Math.random()*40-20));
-r=Math.max(0,Math.min(255,r));
-g=Math.max(0,Math.min(255,g));
-b=Math.max(0,Math.min(255,b));
-palette.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
-}
-renderPalette();
-drawPreview();
+    const base=document.getElementById("baseColor").value;
+    palette=[];
+    for(let i=0;i<5;i++){
+        let r=parseInt(base.substr(1,2),16)+Math.floor((Math.random()*40-20));
+        let g=parseInt(base.substr(3,2),16)+Math.floor((Math.random()*40-20));
+        let b=parseInt(base.substr(5,2),16)+Math.floor((Math.random()*40-20));
+        r=Math.max(0,Math.min(255,r));
+        g=Math.max(0,Math.min(255,g));
+        b=Math.max(0,Math.min(255,b));
+        palette.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
+    }
+    renderPalette();
+    drawPreview();
 }
 
 function createGradient(ctx,width,height,direction,shape){
-let gradient;
+    let gradient;
 
-if(shape==="radial"){
-gradient=ctx.createRadialGradient(width/2,height/2,0,width/2,height/2,Math.min(width,height)/2);
-} else {
-if(direction==="to right") gradient=ctx.createLinearGradient(0,0,width,0);
-else if(direction==="to left") gradient=ctx.createLinearGradient(width,0,0,0);
-else if(direction==="to bottom") gradient=ctx.createLinearGradient(0,0,0,height);
-else if(direction==="to top") gradient=ctx.createLinearGradient(0,height,0,0);
-else gradient=ctx.createLinearGradient(0,0,width,height);
-}
+    if(shape==="radial"){
+        gradient=ctx.createRadialGradient(width/2,height/2,0,width/2,height/2,Math.min(width,height)/2);
+    } else {
+        if(direction==="to right") gradient=ctx.createLinearGradient(0,0,width,0);
+        else if(direction==="to left") gradient=ctx.createLinearGradient(width,0,0,0);
+        else if(direction==="to bottom") gradient=ctx.createLinearGradient(0,0,0,height);
+        else if(direction==="to top") gradient=ctx.createLinearGradient(0,height,0,0);
+        else gradient=ctx.createLinearGradient(0,0,width,height);
+    }
 
-palette.forEach((color,index)=>{
-gradient.addColorStop(index/(palette.length-1),color);
-});
+    palette.forEach((color,index)=>{
+        gradient.addColorStop(index/(palette.length-1),color);
+    });
 
-return gradient;
+    return gradient;
 }
 
 function drawLetters(ctx,width,height,fontSize,density,textColor,charSource,glow,vertical,show){
-if(!show) return;
+    if(!show) return;
 
-ctx.textAlign="center";
-ctx.textBaseline="middle";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
 
-for(let x=0;x<width;x+=density){
-for(let y=0;y<height;y+=density){
-ctx.save();
-ctx.globalAlpha=Math.random()*0.5+0.3;
-ctx.translate(x,y);
-if(vertical) ctx.rotate(Math.PI/2);
-ctx.shadowBlur=glow?10:0;
-ctx.shadowColor=glow?textColor:"transparent";
-ctx.fillStyle=textColor;
-ctx.font=fontSize+"px sans-serif";
-ctx.fillText(randomChar(charSource),0,0);
-ctx.restore();
-}
-}
+    for(let x=0;x<width;x+=density){
+        for(let y=0;y<height;y+=density){
+            ctx.save();
+            ctx.globalAlpha=Math.random()*0.5+0.3;
+            ctx.translate(x,y);
+            if(vertical) ctx.rotate(Math.PI/2);
+            ctx.shadowBlur=glow?10:0;
+            ctx.shadowColor=glow?textColor:"transparent";
+            ctx.fillStyle=textColor;
+            ctx.font=fontSize+"px sans-serif";
+            ctx.fillText(randomChar(charSource),0,0);
+            ctx.restore();
+        }
+    }
 
-ctx.globalAlpha=1;
+    ctx.globalAlpha=1;
 }
 
 function drawPreview(){
-const canvas=document.getElementById("previewCanvas");
-canvas.width=canvas.offsetWidth;
-canvas.height=canvas.offsetHeight;
-const ctx=canvas.getContext("2d");
+    const canvas=document.getElementById("previewCanvas");
+    canvas.width=canvas.offsetWidth;
+    canvas.height=canvas.offsetHeight;
+    const ctx=canvas.getContext("2d");
 
-const width=canvas.width;
-const height=canvas.height;
+    const width=canvas.width;
+    const height=canvas.height;
 
-const direction=document.getElementById("direction").value;
-const shape=document.getElementById("gradientShape").value;
+    const direction=document.getElementById("direction").value;
+    const shape=document.getElementById("gradientShape").value;
 
-ctx.clearRect(0,0,width,height);
+    ctx.clearRect(0,0,width,height);
 
-ctx.fillStyle=createGradient(ctx,width,height,direction,shape);
-ctx.fillRect(0,0,width,height);
+    ctx.fillStyle=createGradient(ctx,width,height,direction,shape);
+    ctx.fillRect(0,0,width,height);
 
-drawLetters(
-ctx,
-width,
-height,
-parseInt(document.getElementById("fontSize").value),
-parseInt(document.getElementById("density").value),
-document.getElementById("textColor").value,
-document.getElementById("customText").value.trim() || japaneseChars,
-document.getElementById("glow").checked,
-document.getElementById("vertical").checked,
-document.getElementById("showLetters").checked
-);
+    drawLetters(
+        ctx,
+        width,
+        height,
+        parseInt(document.getElementById("fontSize").value),
+        parseInt(document.getElementById("density").value),
+        document.getElementById("textColor").value,
+        document.getElementById("customText").value.trim() || japaneseChars,
+        document.getElementById("glow").checked,
+        document.getElementById("vertical").checked,
+        document.getElementById("showLetters").checked
+    );
 }
 
 function generateNew(){
-generatePalette();
-renderPalette();
-drawPreview();
+    generatePalette();
+    renderPalette();
+    drawPreview();
 }
 
 function downloadWallpaper(){
-const width=parseInt(document.getElementById('width').value);
-const height=parseInt(document.getElementById('height').value);
+    const width=parseInt(document.getElementById('width').value);
+    const height=parseInt(document.getElementById('height').value);
 
-const canvas=document.createElement('canvas');
-canvas.width=width;
-canvas.height=height;
-const ctx=canvas.getContext('2d');
+    const canvas=document.createElement('canvas');
+    canvas.width=width;
+    canvas.height=height;
+    const ctx=canvas.getContext('2d');
 
-ctx.fillStyle=createGradient(ctx,width,height,"to right","linear");
-ctx.fillRect(0,0,width,height);
+    const direction=document.getElementById("direction").value;
+    const shape=document.getElementById("gradientShape").value;
 
-drawLetters(
-ctx,width,height,
-parseInt(document.getElementById("fontSize").value),
-parseInt(document.getElementById("density").value),
-document.getElementById("textColor").value,
-document.getElementById("customText").value.trim() || japaneseChars,
-document.getElementById("glow").checked,
-document.getElementById("vertical").checked,
-document.getElementById("showLetters").checked
-);
+    ctx.fillStyle=createGradient(ctx,width,height,direction,shape);
+    ctx.fillRect(0,0,width,height);
 
-const link=document.createElement('a');
-link.download=`wallpaper-${width}x${height}.png`;
-link.href=canvas.toDataURL('image/png');
-link.click();
+    drawLetters(
+        ctx,width,height,
+        parseInt(document.getElementById("fontSize").value),
+        parseInt(document.getElementById("density").value),
+        document.getElementById("textColor").value,
+        document.getElementById("customText").value.trim() || japaneseChars,
+        document.getElementById("glow").checked,
+        document.getElementById("vertical").checked,
+        document.getElementById("showLetters").checked
+    );
+
+    const link=document.createElement('a');
+    link.download=`wallpaper-${width}x${height}.png`;
+    link.href=canvas.toDataURL('image/png');
+    link.click();
 }
 
 generateNew();
 </script>
 
 </body>
+</html>
+generateNew();
+</script>
+
+</body>
+
 </html>
