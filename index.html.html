@@ -480,15 +480,22 @@
     </div>
 
     <div class="param-row">
-      <span>Base
-        <input type="color" id="ambientBaseColor" value="#0c0b11" style="width:60px;">
+      <span>Blend
+        <select id="ambientStyle">
+          <option value="single">Single soft blob</option>
+          <option value="double">Double blob</option>
+        </select>
       </span>
 
-      <span>Glow
+      <span>Base
+        <input type="color" id="ambientBaseColor" value="#09090d" style="width:60px;">
+      </span>
+
+      <span>Glow 1
         <input type="color" id="ambientGlowColor" value="#4d2fbe" style="width:60px;">
       </span>
 
-      <span>Position
+      <span>Position 1
         <select id="ambientPosition">
           <option value="bottom-left">Bottom left</option>
           <option value="bottom-right">Bottom right</option>
@@ -503,6 +510,23 @@
     </div>
 
     <div class="param-row">
+      <span>Glow 2
+        <input type="color" id="ambientGlowColor2" value="#351b91" style="width:60px;">
+      </span>
+
+      <span>Position 2
+        <select id="ambientPosition2">
+          <option value="top-right" selected>Top right</option>
+          <option value="bottom-left">Bottom left</option>
+          <option value="top-left">Top left</option>
+          <option value="bottom-right">Bottom right</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="center">Center</option>
+          <option value="custom">Custom</option>
+        </select>
+      </span>
+
       <span>Custom X
         <input type="range" id="ambientX" min="0" max="100" value="12" style="width:80px;">%
       </span>
@@ -511,17 +535,35 @@
         <input type="range" id="ambientY" min="0" max="100" value="88" style="width:80px;">%
       </span>
 
-      <span>Radius
-        <input type="range" id="ambientRadius" min="0.1" max="1" value="0.35" step="0.05" style="width:80px;">
+      <span>Custom X2
+        <input type="range" id="ambientX2" min="0" max="100" value="88" style="width:80px;">%
+      </span>
+
+      <span>Custom Y2
+        <input type="range" id="ambientY2" min="0" max="100" value="12" style="width:80px;">%
+      </span>
+    </div>
+
+    <div class="param-row">
+      <span>Blob size
+        <input type="range" id="ambientRadius" min="0.1" max="1.2" value="0.55" step="0.01" style="width:90px;">
       </span>
 
       <span>Intensity
-        <input type="range" id="ambientIntensity" min="0" max="1" value="0.85" step="0.05" style="width:80px;">
+        <input type="range" id="ambientIntensity" min="0" max="1" value="0.8" step="0.01" style="width:80px;">
       </span>
 
       <span>Softness
-        <input type="range" id="ambientFeather" min="0" max="1" value="0.55" step="0.05" style="width:80px;">
+        <input type="range" id="ambientFeather" min="0" max="1" value="0.75" step="0.01" style="width:80px;">
       </span>
+
+      <span>Blob 2 strength
+        <input type="range" id="ambientSecondStrength" min="0" max="1" value="0.72" step="0.01" style="width:90px;">
+      </span>
+    </div>
+
+    <div class="note">
+      Soft blob mode creates a deep black/violet atmospheric blend. Double blob adds a second independent violet bloom, similar to the reference image.
     </div>
   </div>
 
@@ -775,7 +817,7 @@
 
   <div class="note">
     ✓ Smooth multi-stop gradients • High-DPI preview • Full-resolution export
-    • Smooth ambient glow • Paper off by default • Letters capped at 8000
+    • Soft atmospheric blob glow • Double-blob mode • Paper off by default • Letters capped at 8000
   </div>
 
 </div>
@@ -864,14 +906,20 @@
   const gradientQuality = document.getElementById("gradientQuality");
 
   const ambientGlowToggle = document.getElementById("ambientGlowToggle");
+  const ambientStyle = document.getElementById("ambientStyle");
   const ambientBaseColor = document.getElementById("ambientBaseColor");
   const ambientGlowColor = document.getElementById("ambientGlowColor");
+  const ambientGlowColor2 = document.getElementById("ambientGlowColor2");
   const ambientPosition = document.getElementById("ambientPosition");
+  const ambientPosition2 = document.getElementById("ambientPosition2");
   const ambientX = document.getElementById("ambientX");
   const ambientY = document.getElementById("ambientY");
+  const ambientX2 = document.getElementById("ambientX2");
+  const ambientY2 = document.getElementById("ambientY2");
   const ambientRadius = document.getElementById("ambientRadius");
   const ambientIntensity = document.getElementById("ambientIntensity");
   const ambientFeather = document.getElementById("ambientFeather");
+  const ambientSecondStrength = document.getElementById("ambientSecondStrength");
 
   const previewCanvas = document.getElementById("previewCanvas");
   const ctx = previewCanvas.getContext("2d", {
@@ -1195,18 +1243,17 @@
   // AMBIENT GLOW
   // ============================================================
 
-  function getAmbientOrigin(w, h) {
+  function getAmbientOrigin(w, h, positionId, customX, customY) {
 
-    const preset =
-      ambientPosition.value;
+    const preset = positionId.value;
 
     const map = {
-      "bottom-left": [0.08, 0.92],
-      "bottom-right": [0.92, 0.92],
-      "top-left": [0.08, 0.08],
-      "top-right": [0.92, 0.08],
-      "left": [0.08, 0.5],
-      "right": [0.92, 0.5],
+      "bottom-left": [0.06, 0.94],
+      "bottom-right": [0.94, 0.94],
+      "top-left": [0.06, 0.06],
+      "top-right": [0.94, 0.06],
+      "left": [0.06, 0.5],
+      "right": [0.94, 0.5],
       "center": [0.5, 0.5]
     };
 
@@ -1214,17 +1261,10 @@
     let py;
 
     if (preset === "custom") {
-
-      px =
-        parseFloat(ambientX.value) / 100;
-
-      py =
-        parseFloat(ambientY.value) / 100;
-
+      px = parseFloat(customX.value) / 100;
+      py = parseFloat(customY.value) / 100;
     } else {
-
-      [px, py] =
-        map[preset] || map["bottom-left"];
+      [px, py] = map[preset] || map["bottom-left"];
     }
 
     return {
@@ -1233,82 +1273,152 @@
     };
   }
 
+  // Atmospheric blob engine. It deliberately avoids a bright circular
+  // hotspot and instead creates a wide, soft black-to-violet field.
+  function drawSoftBlob(ctx, w, h, cx, cy, radius, color, strength, softness) {
+
+    if (strength <= 0) return;
+
+    const r = Math.max(1, radius);
+    const soft = clamp(softness, 0, 1);
+
+    const blob = ctx.createRadialGradient(
+      cx, cy, 0,
+      cx, cy, r
+    );
+
+    const centerAlpha = strength * (0.22 + soft * 0.13);
+    const innerAlpha = strength * (0.17 + soft * 0.09);
+    const middleAlpha = strength * (0.08 + soft * 0.055);
+    const outerAlpha = strength * (0.025 + soft * 0.025);
+
+    blob.addColorStop(0.00, rgbaStr(color, centerAlpha));
+    blob.addColorStop(0.10, rgbaStr(color, innerAlpha));
+    blob.addColorStop(0.24, rgbaStr(color, strength * 0.135));
+    blob.addColorStop(0.43, rgbaStr(color, middleAlpha));
+    blob.addColorStop(0.64, rgbaStr(color, outerAlpha));
+    blob.addColorStop(0.82, rgbaStr(color, strength * 0.008));
+    blob.addColorStop(1.00, rgbaStr(color, 0));
+
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = blob;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
+
   function drawAmbientGlow(ctx, w, h) {
 
-    const baseCol =
-      ambientBaseColor.value;
+    const baseCol = ambientBaseColor.value;
+    const glowCol = ambientGlowColor.value;
+    const glowCol2 = ambientGlowColor2.value;
 
-    const glowCol =
-      ambientGlowColor.value;
+    const intensity = parseFloat(ambientIntensity.value);
+    const softness = parseFloat(ambientFeather.value);
+    const radiusFactor = parseFloat(ambientRadius.value);
+    const secondStrength = parseFloat(ambientSecondStrength.value);
 
-    const {cx, cy} =
-      getAmbientOrigin(w, h);
-
-    const radius =
-      Math.max(w, h) *
-      parseFloat(ambientRadius.value);
-
-    const intensity =
-      parseFloat(ambientIntensity.value);
-
-    const softness =
-      parseFloat(ambientFeather.value);
-
-    // Dark OLED-style base
+    // Deep OLED-style black foundation.
+    ctx.save();
+    ctx.globalCompositeOperation = "source-over";
     ctx.fillStyle = baseCol;
     ctx.fillRect(0, 0, w, h);
+    ctx.restore();
 
-    // Large, multi-stop glow
-    const grad =
-      ctx.createRadialGradient(
-        cx, cy, 0,
-        cx, cy, radius
+    const radius = Math.max(w, h) * radiusFactor;
+
+    const p1 = getAmbientOrigin(
+      w, h,
+      ambientPosition,
+      ambientX,
+      ambientY
+    );
+
+    drawSoftBlob(
+      ctx, w, h,
+      p1.cx, p1.cy,
+      radius,
+      glowCol,
+      intensity,
+      softness
+    );
+
+    // Optional second independent blob.
+    if (ambientStyle.value === "double") {
+
+      const p2 = getAmbientOrigin(
+        w, h,
+        ambientPosition2,
+        ambientX2,
+        ambientY2
       );
 
-    grad.addColorStop(
+      drawSoftBlob(
+        ctx, w, h,
+        p2.cx, p2.cy,
+        radius * 0.98,
+        glowCol2,
+        intensity * secondStrength,
+        softness
+      );
+    }
+
+    // Very broad low-opacity atmospheric wash. This makes the two blobs
+    // merge into the black instead of looking like two circles.
+    const atmosphere = ctx.createRadialGradient(
+      w * .5,
+      h * .5,
+      Math.min(w, h) * .05,
+      w * .5,
+      h * .5,
+      Math.max(w, h) * .9
+    );
+
+    atmosphere.addColorStop(
       0,
-      rgbaStr(glowCol, intensity)
+      rgbaStr(glowCol, 0.018 * intensity)
     );
 
-    grad.addColorStop(
-      clamp(.08 + softness * .08, 0, 1),
-      rgbaStr(glowCol, intensity * .92)
+    atmosphere.addColorStop(
+      .45,
+      rgbaStr(glowCol, 0.009 * intensity)
     );
 
-    grad.addColorStop(
-      clamp(.25 + softness * .15, 0, 1),
-      rgbaStr(glowCol, intensity * .55)
-    );
-
-    grad.addColorStop(
-      clamp(.55 + softness * .20, 0, 1),
-      rgbaStr(glowCol, intensity * .18)
-    );
-
-    grad.addColorStop(
+    atmosphere.addColorStop(
       1,
       rgbaStr(glowCol, 0)
     );
 
-    ctx.fillStyle = grad;
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.fillStyle = atmosphere;
     ctx.fillRect(0, 0, w, h);
+    ctx.restore();
   }
 
   window.applyAmbientReference = function() {
 
     ambientGlowToggle.checked = true;
 
-    ambientBaseColor.value = "#0c0b11";
+    // Preset tuned from the supplied reference image.
+    ambientStyle.value = "double";
+
+    ambientBaseColor.value = "#08080d";
     ambientGlowColor.value = "#4d2fbe";
+    ambientGlowColor2.value = "#4020a8";
 
     ambientPosition.value = "custom";
-
-    ambientX.value = 12;
+    ambientX.value = 8;
     ambientY.value = 88;
 
-    ambientRadius.value = .35;
-    ambientIntensity.value = .85;
-    ambientFeather.value = .55;
+    ambientPosition2.value = "custom";
+    ambientX2.value = 90;
+    ambientY2.value = 10;
+
+    ambientRadius.value = .62;
+    ambientIntensity.value = .95;
+    ambientFeather.value = .88;
+    ambientSecondStrength.value = .82;
 
     drawPreview();
   };
@@ -2693,6 +2803,12 @@
     ambientGlowColor.value =
       randomColor();
 
+    ambientGlowColor2.value =
+      randomColor();
+
+    ambientStyle.value =
+      Math.random() > .45 ? "double" : "single";
+
     const positions = [
       "bottom-left",
       "bottom-right",
@@ -2710,14 +2826,30 @@
         )
       ];
 
+    ambientPosition2.value =
+      positions[
+        Math.floor(
+          Math.random() * positions.length
+        )
+      ];
+
+    ambientX2.value =
+      10 + Math.random() * 80;
+
+    ambientY2.value =
+      10 + Math.random() * 80;
+
     ambientRadius.value =
-      .15 + Math.random() * .6;
+      .25 + Math.random() * .75;
 
     ambientIntensity.value =
       .4 + Math.random() * .6;
 
     ambientFeather.value =
-      Math.random();
+      .35 + Math.random() * .65;
+
+    ambientSecondStrength.value =
+      .35 + Math.random() * .65;
 
     renderPalette();
     drawPreview();
@@ -2989,18 +3121,29 @@
         ambientBaseColor.value =
           "#0c0b11";
 
+        ambientStyle.value =
+          "double";
+
         ambientGlowColor.value =
           "#4d2fbe";
+
+        ambientGlowColor2.value =
+          "#4020a8";
 
         ambientPosition.value =
           "custom";
 
-        ambientX.value = 12;
+        ambientX.value = 8;
         ambientY.value = 88;
 
-        ambientRadius.value = .35;
-        ambientIntensity.value = .85;
-        ambientFeather.value = .55;
+        ambientPosition2.value = "custom";
+        ambientX2.value = 90;
+        ambientY2.value = 10;
+
+        ambientRadius.value = .62;
+        ambientIntensity.value = .95;
+        ambientFeather.value = .88;
+        ambientSecondStrength.value = .82;
       }
 
       renderPalette();
