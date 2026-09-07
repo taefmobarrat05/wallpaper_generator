@@ -137,6 +137,7 @@
       <option value="darkGeometric">Dark geometric</option>
       <option value="vibrantBloom">Vibrant bloom</option>
       <option value="monochromeLines">Monochrome lines</option>
+      <option value="violetGlow">Violet corner glow (reference)</option>
     </select>
     <button class="action" onclick="applyWallpaperPreset()">Apply</button>
   </div>
@@ -176,6 +177,35 @@
       <span>Shape <select id="gradientShape"><option value="linear">Linear</option><option value="radial">Radial</option></select></span>
       <span>Preset <select id="gradientPreset"><option value="">Custom</option><option value="sunrise">Sunrise</option><option value="twilight">Twilight</option><option value="moonlight">Moonlight</option></select></span>
     </div>
+  </div>
+
+  <!-- AMBIENT CORNER GLOW -->
+  <div class="section-divider" data-target="ambientGlowSection">🌌 Ambient corner glow</div>
+  <div class="section-content" id="ambientGlowSection">
+    <div class="toggleGroup">
+      <label>Enable glow background</label><label class="switch"><input type="checkbox" id="ambientGlowToggle"><span class="slider"></span></label>
+      <button class="action" onclick="applyAmbientReference()">🎯 Match reference image</button>
+    </div>
+    <div class="param-row">
+      <span>Base <input type="color" id="ambientBaseColor" value="#0c0b11" style="width:60px;"></span>
+      <span>Glow <input type="color" id="ambientGlowColor" value="#4d2fbe" style="width:60px;"></span>
+      <span>Position <select id="ambientPosition">
+        <option value="bottom-left">Bottom left</option>
+        <option value="bottom-right">Bottom right</option>
+        <option value="top-left">Top left</option>
+        <option value="top-right">Top right</option>
+        <option value="center">Center</option>
+        <option value="custom">Custom (X/Y below)</option>
+      </select></span>
+    </div>
+    <div class="param-row">
+      <span>Custom X <input type="range" id="ambientX" min="0" max="100" value="12" style="width:80px;">%</span>
+      <span>Custom Y <input type="range" id="ambientY" min="0" max="100" value="88" style="width:80px;">%</span>
+      <span>Radius <input type="range" id="ambientRadius" min="0.1" max="1" value="0.35" step="0.05" style="width:80px;"></span>
+      <span>Intensity <input type="range" id="ambientIntensity" min="0" max="1" value="0.85" step="0.05" style="width:80px;"></span>
+      <span>Softness <input type="range" id="ambientFeather" min="0" max="1" value="0.55" step="0.05" style="width:80px;"></span>
+    </div>
+    <div class="note">Replaces the palette gradient below with a flat dark base + one soft glow blob — the look from your reference image.</div>
   </div>
 
   <!-- TEXTURE & MATERIAL (paper now default 0) -->
@@ -275,7 +305,7 @@
     <button class="action" onclick="randomizeAll()">✨ Randomize all</button>
     <button class="action" onclick="downloadWallpaper()">⬇️ Download</button>
   </div>
-  <div class="note">✓ Paper texture now defaults to 0 • Letters capped at 8000 • Elegant spiral • Collapsible sections • Full presets</div>
+  <div class="note">✓ Paper texture now defaults to 0 • Letters capped at 8000 • Elegant spiral • Collapsible sections • Full presets • Ambient corner glow</div>
 </div>
 
 <canvas id="previewCanvas" width="800" height="400"></canvas>
@@ -339,6 +369,15 @@
   const gradientShape = document.getElementById('gradientShape');
   const direction = document.getElementById('direction');
   const gradientPreset = document.getElementById('gradientPreset');
+  const ambientGlowToggle = document.getElementById('ambientGlowToggle');
+  const ambientBaseColor = document.getElementById('ambientBaseColor');
+  const ambientGlowColor = document.getElementById('ambientGlowColor');
+  const ambientPosition = document.getElementById('ambientPosition');
+  const ambientX = document.getElementById('ambientX');
+  const ambientY = document.getElementById('ambientY');
+  const ambientRadius = document.getElementById('ambientRadius');
+  const ambientIntensity = document.getElementById('ambientIntensity');
+  const ambientFeather = document.getElementById('ambientFeather');
 
   const previewCanvas = document.getElementById('previewCanvas');
   const ctx = previewCanvas.getContext('2d');
@@ -401,6 +440,72 @@
     palette.forEach((c,i) => { gradient.addColorStop(i/(palette.length-1), c); });
     return gradient;
   }
+
+  // ====================  AMBIENT CORNER GLOW  ====================
+  // Flat dark background + one soft radial glow blob, positioned anywhere on
+  // the canvas — recreates a "dark app background with a corner glow" look
+  // (e.g. black fading into a violet glow in one corner) as a tunable feature.
+  function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    if(hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+    const num = parseInt(hex, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+  }
+  function rgbaStr(hex, alpha) {
+    const { r, g, b } = hexToRgb(hex);
+    return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
+  }
+  function getAmbientOrigin(w, h) {
+    const preset = ambientPosition.value;
+    const map = {
+      'bottom-left': [0.08, 0.92],
+      'bottom-right': [0.92, 0.92],
+      'top-left': [0.08, 0.08],
+      'top-right': [0.92, 0.08],
+      'center': [0.5, 0.5]
+    };
+    let px, py;
+    if(preset === 'custom') { px = parseFloat(ambientX.value) / 100; py = parseFloat(ambientY.value) / 100; }
+    else { [px, py] = map[preset] || map['bottom-left']; }
+    return { cx: w * px, cy: h * py };
+  }
+  function drawAmbientGlow(ctx, w, h) {
+    const baseCol = ambientBaseColor.value;
+    const glowCol = ambientGlowColor.value;
+    const { cx, cy } = getAmbientOrigin(w, h);
+    const radius = Math.max(w, h) * parseFloat(ambientRadius.value);
+    const intensity = parseFloat(ambientIntensity.value);
+    const feather = parseFloat(ambientFeather.value);
+    const midStop = Math.min(0.85, 0.15 + feather * 0.5);
+
+    // flat dark base fill
+    ctx.fillStyle = baseCol;
+    ctx.fillRect(0, 0, w, h);
+
+    // soft glow blob blended over it
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    grad.addColorStop(0, rgbaStr(glowCol, intensity));
+    grad.addColorStop(midStop, rgbaStr(glowCol, intensity * 0.4));
+    grad.addColorStop(1, rgbaStr(glowCol, 0));
+    ctx.save();
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+  }
+  // one-click values sampled from the reference screenshot (dark navy base,
+  // violet glow rising from the bottom-left)
+  window.applyAmbientReference = function() {
+    ambientGlowToggle.checked = true;
+    ambientBaseColor.value = '#0c0b11';
+    ambientGlowColor.value = '#4d2fbe';
+    ambientPosition.value = 'custom';
+    ambientX.value = 12;
+    ambientY.value = 88;
+    ambientRadius.value = 0.35;
+    ambientIntensity.value = 0.85;
+    ambientFeather.value = 0.55;
+    drawPreview();
+  };
 
   // preset gradient override (kept for compatibility)
   gradientPreset.addEventListener("change", () => {
@@ -723,8 +828,12 @@
     previewCanvas.width = w; previewCanvas.height = h;
     ctx.clearRect(0,0,w,h);
 
-    ctx.fillStyle = createGradient(ctx, w, h);
-    ctx.fillRect(0,0,w,h);
+    if(ambientGlowToggle.checked) {
+      drawAmbientGlow(ctx, w, h);
+    } else {
+      ctx.fillStyle = createGradient(ctx, w, h);
+      ctx.fillRect(0,0,w,h);
+    }
 
     applyMetallic(ctx, w, h);
     applyEmboss(ctx, w, h);
@@ -749,8 +858,12 @@
     canvasDL.width = w; canvasDL.height = h;
     const dlCtx = canvasDL.getContext("2d");
 
-    dlCtx.fillStyle = createGradient(dlCtx, w, h);
-    dlCtx.fillRect(0,0,w,h);
+    if(ambientGlowToggle.checked) {
+      drawAmbientGlow(dlCtx, w, h);
+    } else {
+      dlCtx.fillStyle = createGradient(dlCtx, w, h);
+      dlCtx.fillRect(0,0,w,h);
+    }
 
     applyMetallic(dlCtx, w, h);
     applyEmboss(dlCtx, w, h);
@@ -817,6 +930,14 @@
     framingToggle.checked = Math.random()>0.5;
     ruleThirds.checked = Math.random()>0.5;
     colorFXMaster.checked = Math.random()>0.3;
+    ambientGlowToggle.checked = Math.random()>0.6;
+    ambientBaseColor.value = randomColor();
+    ambientGlowColor.value = randomColor();
+    const ambientPositions = ["bottom-left","bottom-right","top-left","top-right","center"];
+    ambientPosition.value = ambientPositions[Math.floor(Math.random()*ambientPositions.length)];
+    ambientRadius.value = 0.15 + Math.random()*0.6;
+    ambientIntensity.value = 0.4 + Math.random()*0.6;
+    ambientFeather.value = Math.random();
     drawPreview();
   }
 
@@ -874,6 +995,23 @@
       vignetteToggle.checked = true; vignetteStr.value = 0.4; framingToggle.checked = true;
       bloom.value = 0; prismatic.value = 0;
       paperIntensity.value = 0;
+    } else if(preset === 'violetGlow') {
+      showLetters.checked = false;
+      minimalToggle.checked = false;
+      ripplesToggle.checked = false;
+      sealToggle.checked = false;
+      vignetteToggle.checked = false; lightLeakToggle.checked = false; framingToggle.checked = false; ruleThirds.checked = false;
+      colorFXMaster.checked = false; bloom.value = 0; prismatic.value = 0;
+      paperIntensity.value = 0; metallic.value = 0; emboss.value = 0;
+      ambientGlowToggle.checked = true;
+      ambientBaseColor.value = '#0c0b11';
+      ambientGlowColor.value = '#4d2fbe';
+      ambientPosition.value = 'custom';
+      ambientX.value = 12;
+      ambientY.value = 88;
+      ambientRadius.value = 0.35;
+      ambientIntensity.value = 0.85;
+      ambientFeather.value = 0.55;
     }
     // trigger baseColor update
     baseColorInput.dispatchEvent(new Event('input'));
@@ -910,5 +1048,3 @@
 </script>
 </body>
 </html>
-
-
