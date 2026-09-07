@@ -3,69 +3,192 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wallpaper · ripples + minimal (optimised)</title>
+  <title>Wallpaper Studio · HD Smooth Edition</title>
+
   <style>
     * { box-sizing: border-box; }
+
+    html {
+      background: #000;
+    }
+
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "San Francisco", Helvetica, Arial, sans-serif;
       padding: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, "San Francisco",
+                   Helvetica, Arial, sans-serif;
       background: #000;
       color: #f2f2f7;
-      transition: 0.3s;
+      transition: background .3s, color .3s;
     }
-    body.light { background: #f2f2f7; color: #1c1c1e; }
+
+    body.light {
+      background: #f2f2f7;
+      color: #1c1c1e;
+    }
+
     .card {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,.1);
       backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-radius: 18px;
       padding: 15px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,.1);
       margin-bottom: 15px;
     }
-    body.light .card { background: rgba(255,255,255,0.85); }
-    #palettePreview { height: 16px; border-radius: 12px; margin-bottom: 10px; }
-    .palette { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-    .color-box { width: 40px; height: 40px; border-radius: 12px; cursor: pointer; border: 2px solid rgba(255,255,255,0.2); transition: 0.2s; }
-    body.light .color-box { border: 2px solid rgba(0,0,0,0.1); }
-    .color-box:hover { transform: scale(1.1); }
+
+    body.light .card {
+      background: rgba(255,255,255,.85);
+    }
+
+    #palettePreview {
+      height: 18px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .palette {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .paletteItem {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .color-box {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 2px solid rgba(255,255,255,.2);
+      transition: transform .2s;
+    }
+
+    body.light .color-box {
+      border-color: rgba(0,0,0,.1);
+    }
+
+    .color-box:hover {
+      transform: scale(1.1);
+    }
+
     input, select {
-      padding: 4px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);
-      margin: 3px 3px 3px 0; background: #1c1c1e; color: white; font-size: 13px;
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.2);
+      margin: 3px 3px 3px 0;
+      background: #1c1c1e;
+      color: white;
+      font-size: 13px;
     }
-    body.light input, body.light select { border: 1px solid rgba(0,0,0,0.2); background: #fff; color: #1c1c1e; }
+
+    body.light input,
+    body.light select {
+      border-color: rgba(0,0,0,.2);
+      background: #fff;
+      color: #1c1c1e;
+    }
+
     button.action {
-      background: #007aff; color: white; border: none; padding: 6px 12px; border-radius: 12px;
-      font-weight: 600; cursor: pointer; margin-top: 5px; font-size: 13px;
+      background: #007aff;
+      color: white;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 5px;
+      font-size: 13px;
     }
-    button.action:hover { background: #005ecb; }
+
+    button.action:hover {
+      background: #005ecb;
+    }
+
+    button.action:active {
+      transform: scale(.98);
+    }
+
     #previewCanvas {
-      width: 100%; height: 400px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2);
-      margin-top: 10px; background: #1a1a1a;
+      width: 100%;
+      height: 500px;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.2);
+      margin-top: 10px;
+      background: #1a1a1a;
     }
-    body.light #previewCanvas { border: 1px solid rgba(0,0,0,0.1); background: #ddd; }
+
+    body.light #previewCanvas {
+      border-color: rgba(0,0,0,.1);
+      background: #ddd;
+    }
+
     .switch {
-      position: relative; display: inline-block; width: 40px; height: 22px;
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
     }
-    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
     .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background: #555; border-radius: 22px; transition: .3s;
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #555;
+      border-radius: 22px;
+      transition: .3s;
     }
+
     .slider:before {
-      position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px;
-      background: white; border-radius: 50%; transition: .3s;
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 2px;
+      bottom: 2px;
+      background: white;
+      border-radius: 50%;
+      transition: .3s;
     }
-    input:checked + .slider { background: #007aff; }
-    input:checked + .slider:before { transform: translateX(18px); }
+
+    input:checked + .slider {
+      background: #007aff;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(18px);
+    }
+
     .toggleGroup {
-      display: flex; gap: 15px; align-items: center; margin: 5px 0; flex-wrap: wrap; font-size: 13px;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin: 5px 0;
+      flex-wrap: wrap;
+      font-size: 13px;
     }
-    /* collapsible sections */
+
     .section-divider {
-      border-top: 1px solid rgba(255,255,255,0.15);
-      margin: 18px 0 8px 0;
-      padding: 8px 0 4px 0;
+      border-top: 1px solid rgba(255,255,255,.15);
+      margin: 18px 0 8px;
+      padding: 8px 0 4px;
       font-weight: 600;
       font-size: 14px;
       display: flex;
@@ -74,977 +197,2948 @@
       cursor: pointer;
       user-select: none;
     }
+
     .section-divider::before {
       content: "▼";
       font-size: 12px;
-      transition: transform 0.2s;
+      transition: transform .2s;
       display: inline-block;
       margin-right: 4px;
     }
+
     .section-divider.collapsed::before {
       transform: rotate(-90deg);
     }
+
     .section-content {
       overflow: hidden;
-      transition: max-height 0.3s ease;
+      transition: max-height .3s ease;
     }
+
     .section-content.collapsed {
-      max-height: 0;
+      max-height: 0 !important;
       margin: 0;
       visibility: hidden;
     }
-    body.light .section-divider { border-top-color: rgba(0,0,0,0.1); }
+
+    body.light .section-divider {
+      border-top-color: rgba(0,0,0,.1);
+    }
+
     .param-row {
-      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0; font-size: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 12px;
     }
-    .param-row span { display: inline-flex; align-items: center; gap: 4px; }
+
+    .param-row span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     .note {
-      font-size: 11px; opacity: 0.7; margin-top: 4px;
+      font-size: 11px;
+      opacity: .7;
+      margin-top: 5px;
+      line-height: 1.4;
     }
+
     .grid-2 {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
+
     .preset-bar {
-      display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 10px 0;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 650px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      #previewCanvas {
+        height: 420px;
+      }
     }
   </style>
 </head>
+
 <body class="dark">
-<h1 style="font-size:22px; text-align:center; margin-bottom:10px;">◯ Ripples + minimalist geometry (paper off by default)</h1>
+
+<h1 style="font-size:22px;text-align:center;margin-bottom:10px;">
+  ◯ Ripples + Minimalist Geometry · HD Wallpaper Studio
+</h1>
 
 <div class="card">
+
   <div id="palettePreview"></div>
   <div class="palette" id="palette"></div>
 
-  <!-- BASE CONTROLS (always visible) -->
+  <!-- BASE CONTROLS -->
   <div class="grid-2">
-    <div>Base: <input type="color" id="baseColor" value="#007aff"></div>
-    <div>Device: <select id="deviceSelector"><option value="pc">PC</option><option value="mobile">Mobile</option></select></div>
-    <div>W: <input type="number" id="width" value="1920" style="width:60px;"></div>
-    <div>H: <input type="number" id="height" value="1080" style="width:60px;"></div>
-  </div>
-  <div class="toggleGroup">
-    <label>Dark mode</label><label class="switch"><input type="checkbox" id="darkModeSwitch" checked><span class="slider"></span></label>
-    <span style="flex:1; text-align:right; font-size:12px;">⬇️ click sections to expand</span>
+    <div>Base:
+      <input type="color" id="baseColor" value="#007aff">
+    </div>
+
+    <div>Device:
+      <select id="deviceSelector">
+        <option value="pc">PC</option>
+        <option value="mobile">Mobile</option>
+      </select>
+    </div>
+
+    <div>W:
+      <input type="number" id="width" value="1920" style="width:75px;">
+    </div>
+
+    <div>H:
+      <input type="number" id="height" value="1080" style="width:75px;">
+    </div>
   </div>
 
-  <!-- WALLPAPER PRESETS -->
+  <div class="toggleGroup">
+    <label>Dark mode</label>
+    <label class="switch">
+      <input type="checkbox" id="darkModeSwitch" checked>
+      <span class="slider"></span>
+    </label>
+
+    <span style="flex:1;text-align:right;font-size:12px;">
+      ⬇️ Click sections to expand/collapse
+    </span>
+  </div>
+
+  <!-- PRESETS -->
   <div class="preset-bar">
     <span style="font-weight:500;">🎨 Full preset:</span>
+
     <select id="wallpaperPreset">
       <option value="default">Default</option>
       <option value="minimalRipples">Minimal ripples</option>
       <option value="darkGeometric">Dark geometric</option>
       <option value="vibrantBloom">Vibrant bloom</option>
       <option value="monochromeLines">Monochrome lines</option>
-      <option value="violetGlow">Violet corner glow (reference)</option>
+      <option value="violetGlow">Violet corner glow</option>
     </select>
+
     <button class="action" onclick="applyWallpaperPreset()">Apply</button>
   </div>
 
-  <!-- ========== LETTERS ========= -->
-  <div class="section-divider" data-target="lettersSection">🔤 Scattered letters</div>
+  <!-- LETTERS -->
+  <div class="section-divider" data-target="lettersSection">
+    🔤 Scattered letters
+  </div>
+
   <div class="section-content" id="lettersSection">
     <div class="toggleGroup">
-      <label>Show letters</label><label class="switch"><input type="checkbox" id="showLetters" checked><span class="slider"></span></label>
-      <label>Glow</label><label class="switch"><input type="checkbox" id="glow"><span class="slider"></span></label>
-      <label>Vertical</label><label class="switch"><input type="checkbox" id="vertical"><span class="slider"></span></label>
+      <label>Show letters</label>
+      <label class="switch">
+        <input type="checkbox" id="showLetters" checked>
+        <span class="slider"></span>
+      </label>
+
+      <label>Glow</label>
+      <label class="switch">
+        <input type="checkbox" id="glow">
+        <span class="slider"></span>
+      </label>
+
+      <label>Vertical</label>
+      <label class="switch">
+        <input type="checkbox" id="vertical">
+        <span class="slider"></span>
+      </label>
     </div>
+
     <div class="param-row">
-      <span>Size <input type="number" id="fontSize" value="20" style="width:60px;"></span>
-      <span>Density <input type="number" id="density" value="70" style="width:60px;"></span>
-      <span>Color <input type="color" id="textColor" value="#ffffff" style="width:60px;"></span>
-      <span>Custom <input type="text" id="customText" style="width:100px;" placeholder="文字"></span>
+      <span>Size
+        <input type="number" id="fontSize" value="20" style="width:60px;">
+      </span>
+
+      <span>Density
+        <input type="number" id="density" value="70" style="width:60px;">
+      </span>
+
+      <span>Color
+        <input type="color" id="textColor" value="#ffffff" style="width:60px;">
+      </span>
+
+      <span>Custom
+        <input type="text" id="customText" style="width:100px;" placeholder="文字">
+      </span>
     </div>
+
     <div class="param-row">
-      <span>Position <select id="letterPosition">
-        <option value="center">Center</option><option value="top-left">TopL</option><option value="top-right">TopR</option>
-        <option value="bottom-left">BottomL</option><option value="bottom-right">BottomR</option>
-        <option value="left">Left</option><option value="right">Right</option>
-      </select></span>
-      <span>Font <select id="fontFamily"><option value="sans-serif">Sans</option><option value="serif">Serif</option><option value="cursive">Cursive</option></select></span>
-      <span>Rotate max <input type="range" id="rotateMax" min="0" max="45" value="0" style="width:80px;">°</span>
-      <span>Size var <input type="range" id="sizeVar" min="0" max="1" value="0.3" step="0.05" style="width:80px;"></span>
-      <span>Clustering <input type="range" id="clustering" min="0" max="1" value="0" style="width:80px;"></span>
+      <span>Position
+        <select id="letterPosition">
+          <option value="center">Center</option>
+          <option value="top-left">TopL</option>
+          <option value="top-right">TopR</option>
+          <option value="bottom-left">BottomL</option>
+          <option value="bottom-right">BottomR</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+        </select>
+      </span>
+
+      <span>Font
+        <select id="fontFamily">
+          <option value="sans-serif">Sans</option>
+          <option value="serif">Serif</option>
+          <option value="cursive">Cursive</option>
+        </select>
+      </span>
+
+      <span>Rotate max
+        <input type="range" id="rotateMax" min="0" max="45" value="0" style="width:80px;">°
+      </span>
+
+      <span>Size var
+        <input type="range" id="sizeVar" min="0" max="1" value="0.3" step="0.05" style="width:80px;">
+      </span>
+
+      <span>Clustering
+        <input type="range" id="clustering" min="0" max="1" value="0" step="0.05" style="width:80px;">
+      </span>
     </div>
   </div>
 
   <!-- GRADIENT -->
-  <div class="section-divider" data-target="gradientSection">🌈 Gradient</div>
+  <div class="section-divider" data-target="gradientSection">
+    🌈 Gradient
+  </div>
+
   <div class="section-content" id="gradientSection">
     <div class="param-row">
-      <span>Dir <select id="direction"><option value="45deg" selected>Diagonal</option><option value="to right">→</option><option value="to bottom">↓</option></select></span>
-      <span>Shape <select id="gradientShape"><option value="linear">Linear</option><option value="radial">Radial</option></select></span>
-      <span>Preset <select id="gradientPreset"><option value="">Custom</option><option value="sunrise">Sunrise</option><option value="twilight">Twilight</option><option value="moonlight">Moonlight</option></select></span>
+
+      <span>Dir
+        <select id="direction">
+          <option value="45deg" selected>Diagonal</option>
+          <option value="to right">→</option>
+          <option value="to bottom">↓</option>
+        </select>
+      </span>
+
+      <span>Shape
+        <select id="gradientShape">
+          <option value="linear">Linear</option>
+          <option value="radial">Radial</option>
+        </select>
+      </span>
+
+      <span>Preset
+        <select id="gradientPreset">
+          <option value="">Custom</option>
+          <option value="sunrise">Sunrise</option>
+          <option value="twilight">Twilight</option>
+          <option value="moonlight">Moonlight</option>
+        </select>
+      </span>
+
+      <span>Quality
+        <select id="gradientQuality">
+          <option value="16">Balanced</option>
+          <option value="32" selected>High</option>
+          <option value="48">Ultra</option>
+        </select>
+      </span>
+    </div>
+
+    <div class="note">
+      High/Ultra uses dense color interpolation to make transitions smoother.
     </div>
   </div>
 
-  <!-- AMBIENT CORNER GLOW -->
-  <div class="section-divider" data-target="ambientGlowSection">🌌 Ambient corner glow</div>
+  <!-- AMBIENT GLOW -->
+  <div class="section-divider" data-target="ambientGlowSection">
+    🌌 Ambient corner glow
+  </div>
+
   <div class="section-content" id="ambientGlowSection">
+
     <div class="toggleGroup">
-      <label>Enable glow background</label><label class="switch"><input type="checkbox" id="ambientGlowToggle"><span class="slider"></span></label>
-      <button class="action" onclick="applyAmbientReference()">🎯 Match reference image</button>
+      <label>Enable glow background</label>
+
+      <label class="switch">
+        <input type="checkbox" id="ambientGlowToggle">
+        <span class="slider"></span>
+      </label>
+
+      <button class="action" onclick="applyAmbientReference()">
+        🎯 Match reference
+      </button>
     </div>
+
     <div class="param-row">
-      <span>Base <input type="color" id="ambientBaseColor" value="#0c0b11" style="width:60px;"></span>
-      <span>Glow <input type="color" id="ambientGlowColor" value="#4d2fbe" style="width:60px;"></span>
-      <span>Position <select id="ambientPosition">
-        <option value="bottom-left">Bottom left</option>
-        <option value="bottom-right">Bottom right</option>
-        <option value="top-left">Top left</option>
-        <option value="top-right">Top right</option>
-        <option value="center">Center</option>
-        <option value="custom">Custom (X/Y below)</option>
-      </select></span>
+      <span>Base
+        <input type="color" id="ambientBaseColor" value="#0c0b11" style="width:60px;">
+      </span>
+
+      <span>Glow
+        <input type="color" id="ambientGlowColor" value="#4d2fbe" style="width:60px;">
+      </span>
+
+      <span>Position
+        <select id="ambientPosition">
+          <option value="bottom-left">Bottom left</option>
+          <option value="bottom-right">Bottom right</option>
+          <option value="top-left">Top left</option>
+          <option value="top-right">Top right</option>
+          <option value="left">Left</option>
+          <option value="right">Right</option>
+          <option value="center">Center</option>
+          <option value="custom">Custom</option>
+        </select>
+      </span>
     </div>
+
     <div class="param-row">
-      <span>Custom X <input type="range" id="ambientX" min="0" max="100" value="12" style="width:80px;">%</span>
-      <span>Custom Y <input type="range" id="ambientY" min="0" max="100" value="88" style="width:80px;">%</span>
-      <span>Radius <input type="range" id="ambientRadius" min="0.1" max="1" value="0.35" step="0.05" style="width:80px;"></span>
-      <span>Intensity <input type="range" id="ambientIntensity" min="0" max="1" value="0.85" step="0.05" style="width:80px;"></span>
-      <span>Softness <input type="range" id="ambientFeather" min="0" max="1" value="0.55" step="0.05" style="width:80px;"></span>
+      <span>Custom X
+        <input type="range" id="ambientX" min="0" max="100" value="12" style="width:80px;">%
+      </span>
+
+      <span>Custom Y
+        <input type="range" id="ambientY" min="0" max="100" value="88" style="width:80px;">%
+      </span>
+
+      <span>Radius
+        <input type="range" id="ambientRadius" min="0.1" max="1" value="0.35" step="0.05" style="width:80px;">
+      </span>
+
+      <span>Intensity
+        <input type="range" id="ambientIntensity" min="0" max="1" value="0.85" step="0.05" style="width:80px;">
+      </span>
+
+      <span>Softness
+        <input type="range" id="ambientFeather" min="0" max="1" value="0.55" step="0.05" style="width:80px;">
+      </span>
     </div>
-    <div class="note">Replaces the palette gradient below with a flat dark base + one soft glow blob — the look from your reference image.</div>
   </div>
 
-  <!-- TEXTURE & MATERIAL (paper now default 0) -->
-  <div class="section-divider" data-target="textureSection">📜 Texture & Material</div>
+  <!-- TEXTURE -->
+  <div class="section-divider" data-target="textureSection">
+    📜 Texture & Material
+  </div>
+
   <div class="section-content" id="textureSection">
     <div class="param-row">
-      <span>Paper <input type="range" id="paperIntensity" min="0" max="1" step="0.05" value="0" style="width:80px;"></span>
-      <span>Metallic <input type="range" id="metallic" min="0" max="1" step="0.05" value="0" style="width:80px;"></span>
-      <span>Emboss <input type="range" id="emboss" min="0" max="1" step="0.05" value="0" style="width:80px;"></span>
+
+      <span>Paper
+        <input type="range" id="paperIntensity" min="0" max="1" step="0.05" value="0" style="width:80px;">
+      </span>
+
+      <span>Metallic
+        <input type="range" id="metallic" min="0" max="1" step="0.05" value="0" style="width:80px;">
+      </span>
+
+      <span>Emboss
+        <input type="range" id="emboss" min="0" max="1" step="0.05" value="0" style="width:80px;">
+      </span>
     </div>
   </div>
 
   <!-- COMPOSITION -->
-  <div class="section-divider" data-target="compSection">⚖️ Composition</div>
+  <div class="section-divider" data-target="compSection">
+    ⚖️ Composition
+  </div>
+
   <div class="section-content" id="compSection">
+
     <div class="toggleGroup">
-      <label>Rule of thirds</label><label class="switch"><input type="checkbox" id="ruleThirds"><span class="slider"></span></label>
-      <label>Vignette</label><label class="switch"><input type="checkbox" id="vignetteToggle"><span class="slider"></span></label>
-      <label>Light leaks</label><label class="switch"><input type="checkbox" id="lightLeakToggle"><span class="slider"></span></label>
-      <label>Framing</label><label class="switch"><input type="checkbox" id="framingToggle"><span class="slider"></span></label>
+      <label>Rule of thirds</label>
+      <label class="switch">
+        <input type="checkbox" id="ruleThirds">
+        <span class="slider"></span>
+      </label>
+
+      <label>Vignette</label>
+      <label class="switch">
+        <input type="checkbox" id="vignetteToggle">
+        <span class="slider"></span>
+      </label>
+
+      <label>Light leaks</label>
+      <label class="switch">
+        <input type="checkbox" id="lightLeakToggle">
+        <span class="slider"></span>
+      </label>
+
+      <label>Framing</label>
+      <label class="switch">
+        <input type="checkbox" id="framingToggle">
+        <span class="slider"></span>
+      </label>
     </div>
+
     <div class="param-row">
-      <span>Vignette str <input type="range" id="vignetteStr" min="0" max="1" value="0.3" step="0.05" style="width:80px;"></span>
-      <span>Leak color <input type="color" id="leakColor" value="#ffaa66" style="width:50px;"></span>
+      <span>Vignette str
+        <input type="range" id="vignetteStr" min="0" max="1" value="0.3" step="0.05" style="width:80px;">
+      </span>
+
+      <span>Leak color
+        <input type="color" id="leakColor" value="#ffaa66" style="width:50px;">
+      </span>
     </div>
   </div>
 
-  <!-- COLOR & LIGHT -->
-  <div class="section-divider" data-target="colorfxSection">✨ Color & light</div>
+  <!-- COLOR FX -->
+  <div class="section-divider" data-target="colorfxSection">
+    ✨ Color & light
+  </div>
+
   <div class="section-content" id="colorfxSection">
+
     <div class="toggleGroup">
-      <span>Enable color FX</span><label class="switch"><input type="checkbox" id="colorFXMaster" checked><span class="slider"></span></label>
+      <span>Enable color FX</span>
+
+      <label class="switch">
+        <input type="checkbox" id="colorFXMaster" checked>
+        <span class="slider"></span>
+      </label>
     </div>
+
     <div class="param-row">
-      <span>Bloom <input type="range" id="bloom" min="0" max="1" value="0" step="0.05" style="width:80px;"></span>
-      <span>Prismatic <input type="range" id="prismatic" min="0" max="1" value="0" step="0.05" style="width:80px;"></span>
+      <span>Bloom
+        <input type="range" id="bloom" min="0" max="1" value="0" step="0.05" style="width:80px;">
+      </span>
+
+      <span>Prismatic
+        <input type="range" id="prismatic" min="0" max="1" value="0" step="0.05" style="width:80px;">
+      </span>
     </div>
   </div>
 
-  <!-- MINIMALIST ELEMENTS -->
-  <div class="section-divider" data-target="minimalSection">⬜ Minimalist elements</div>
+  <!-- MINIMAL -->
+  <div class="section-divider" data-target="minimalSection">
+    ⬜ Minimalist elements
+  </div>
+
   <div class="section-content" id="minimalSection">
+
     <div class="toggleGroup">
-      <label>Enable</label><label class="switch"><input type="checkbox" id="minimalToggle"><span class="slider"></span></label>
+      <label>Enable</label>
+
+      <label class="switch">
+        <input type="checkbox" id="minimalToggle">
+        <span class="slider"></span>
+      </label>
     </div>
+
     <div class="param-row">
-      <span>Type <select id="minimalType"><option value="dots">Dots</option><option value="lines">Lines</option><option value="grid">Grid</option><option value="circles">Circles</option><option value="squares">Squares</option></select></span>
-      <span>Color <input type="color" id="minimalColor" value="#cccccc" style="width:60px;"></span>
-      <span>Size <input type="range" id="minimalSize" min="1" max="20" value="4" style="width:80px;"></span>
-      <span>Spacing <input type="range" id="minimalSpacing" min="5" max="100" value="30" style="width:80px;"></span>
-      <span>Opacity <input type="range" id="minimalOpacity" min="0" max="1" step="0.05" value="0.5" style="width:80px;"></span>
+
+      <span>Type
+        <select id="minimalType">
+          <option value="dots">Dots</option>
+          <option value="lines">Lines</option>
+          <option value="grid">Grid</option>
+          <option value="circles">Circles</option>
+          <option value="squares">Squares</option>
+        </select>
+      </span>
+
+      <span>Color
+        <input type="color" id="minimalColor" value="#cccccc" style="width:60px;">
+      </span>
+
+      <span>Size
+        <input type="range" id="minimalSize" min="1" max="20" value="4" style="width:80px;">
+      </span>
+
+      <span>Spacing
+        <input type="range" id="minimalSpacing" min="5" max="100" value="30" style="width:80px;">
+      </span>
+
+      <span>Opacity
+        <input type="range" id="minimalOpacity" min="0" max="1" step="0.05" value="0.5" style="width:80px;">
+      </span>
     </div>
   </div>
 
   <!-- RIPPLES -->
-  <div class="section-divider" data-target="rippleSection">🌊 Ripples (various styles)</div>
+  <div class="section-divider" data-target="rippleSection">
+    🌊 Ripples
+  </div>
+
   <div class="section-content" id="rippleSection">
+
     <div class="toggleGroup">
-      <label>Enable ripples</label><label class="switch"><input type="checkbox" id="ripplesToggle"><span class="slider"></span></label>
+      <label>Enable ripples</label>
+
+      <label class="switch">
+        <input type="checkbox" id="ripplesToggle">
+        <span class="slider"></span>
+      </label>
     </div>
+
     <div class="param-row">
-      <span>Style <select id="rippleStyle">
-        <option value="concentric">Concentric (center)</option>
-        <option value="multiorigin">Multi‑origin</option>
-        <option value="grid">Grid origins</option>
-        <option value="offset">Offset rings</option>
-        <option value="spiral">Spiral (improved)</option>
-      </select></span>
-      <span>Color <input type="color" id="rippleColor" value="#88aaff" style="width:60px;"></span>
-      <span>Thickness <input type="range" id="rippleThick" min="1" max="10" value="2" style="width:70px;"></span>
-      <span>Ring step <input type="range" id="rippleStep" min="10" max="100" value="30" style="width:70px;"></span>
+
+      <span>Style
+        <select id="rippleStyle">
+          <option value="concentric">Concentric (center)</option>
+          <option value="multiorigin">Multi-origin</option>
+          <option value="grid">Grid origins</option>
+          <option value="offset">Offset rings</option>
+          <option value="spiral">Spiral</option>
+        </select>
+      </span>
+
+      <span>Color
+        <input type="color" id="rippleColor" value="#88aaff" style="width:60px;">
+      </span>
+
+      <span>Thickness
+        <input type="range" id="rippleThick" min="1" max="10" value="2" style="width:70px;">
+      </span>
+
+      <span>Ring step
+        <input type="range" id="rippleStep" min="10" max="100" value="30" style="width:70px;">
+      </span>
     </div>
+
     <div class="param-row">
-      <span>Ring count <input type="range" id="rippleCount" min="1" max="20" value="5" style="width:70px;"></span>
-      <span>Origin X <input type="range" id="rippleX" min="-200" max="200" value="0" style="width:100px;"></span>
-      <span>Origin Y <input type="range" id="rippleY" min="-200" max="200" value="0" style="width:100px;"></span>
-      <span>Opacity <input type="range" id="rippleOpacity" min="0" max="1" step="0.05" value="0.6" style="width:80px;"></span>
+
+      <span>Ring count
+        <input type="range" id="rippleCount" min="1" max="20" value="5" style="width:70px;">
+      </span>
+
+      <span>Origin X
+        <input type="range" id="rippleX" min="-200" max="200" value="0" style="width:100px;">
+      </span>
+
+      <span>Origin Y
+        <input type="range" id="rippleY" min="-200" max="200" value="0" style="width:100px;">
+      </span>
+
+      <span>Opacity
+        <input type="range" id="rippleOpacity" min="0" max="1" step="0.05" value="0.6" style="width:80px;">
+      </span>
     </div>
   </div>
 
-  <!-- SIGNATURE SEAL -->
-  <div class="section-divider" data-target="sealSection">🖋️ Signature seal</div>
+  <!-- SEAL -->
+  <div class="section-divider" data-target="sealSection">
+    🖋️ Signature seal
+  </div>
+
   <div class="section-content" id="sealSection">
+
     <div class="toggleGroup">
-      <label>Enable seal</label><label class="switch"><input type="checkbox" id="sealToggle"><span class="slider"></span></label>
+      <label>Enable seal</label>
+
+      <label class="switch">
+        <input type="checkbox" id="sealToggle">
+        <span class="slider"></span>
+      </label>
     </div>
+
     <div class="param-row">
-      <span>Seal kanji <input type="text" id="sealChar" value="波" style="width:60px;"></span>
-      <span>Seal color <input type="color" id="sealColor" value="#aa2222" style="width:60px;"></span>
-      <span>Size <input type="range" id="sealSize" min="20" max="80" value="40" style="width:80px;"></span>
+
+      <span>Seal kanji
+        <input type="text" id="sealChar" value="波" style="width:60px;">
+      </span>
+
+      <span>Seal color
+        <input type="color" id="sealColor" value="#aa2222" style="width:60px;">
+      </span>
+
+      <span>Size
+        <input type="range" id="sealSize" min="20" max="80" value="40" style="width:80px;">
+      </span>
     </div>
   </div>
 
-  <!-- ACTION BUTTONS -->
-  <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:15px;">
-    <button class="action" onclick="generateNew()">🎲 New palette</button>
-    <button class="action" onclick="randomizeAll()">✨ Randomize all</button>
-    <button class="action" onclick="downloadWallpaper()">⬇️ Download</button>
+  <!-- ACTIONS -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:15px;">
+
+    <button class="action" onclick="generateNew()">
+      🎲 New palette
+    </button>
+
+    <button class="action" onclick="randomizeAll()">
+      ✨ Randomize all
+    </button>
+
+    <button class="action" onclick="downloadWallpaper()">
+      ⬇️ Download HD
+    </button>
   </div>
-  <div class="note">✓ Paper texture now defaults to 0 • Letters capped at 8000 • Elegant spiral • Collapsible sections • Full presets • Ambient corner glow</div>
+
+  <div class="note">
+    ✓ Smooth multi-stop gradients • High-DPI preview • Full-resolution export
+    • Smooth ambient glow • Paper off by default • Letters capped at 8000
+  </div>
+
 </div>
 
 <canvas id="previewCanvas" width="800" height="400"></canvas>
 
 <script>
 (function() {
-  // ====================  CONSTANTS & DOM CACHE  ====================
-  const MAX_LETTERS = 8000;  // performance cap
-  const defaultChars = "日本語東京京都山川火水風空愛夢桜龍心力光影未来忍者侍北海道花月星海";
+
+  "use strict";
+
+  // ============================================================
+  // CONSTANTS
+  // ============================================================
+
+  const MAX_LETTERS = 8000;
+
+  const defaultChars =
+    "日本語東京京都山川火水風空愛夢桜龍心力光影未来忍者侍北海道花月星海";
+
   let palette = [];
 
-  // DOM elements
-  const baseColorInput = document.getElementById('baseColor');
-  const deviceSelector = document.getElementById('deviceSelector');
-  const darkModeSwitch = document.getElementById('darkModeSwitch');
-  const widthInput = document.getElementById('width');
-  const heightInput = document.getElementById('height');
-  const paperIntensity = document.getElementById('paperIntensity');
-  const metallic = document.getElementById('metallic');
-  const emboss = document.getElementById('emboss');
-  const vignetteToggle = document.getElementById('vignetteToggle');
-  const vignetteStr = document.getElementById('vignetteStr');
-  const lightLeakToggle = document.getElementById('lightLeakToggle');
-  const leakColor = document.getElementById('leakColor');
-  const framingToggle = document.getElementById('framingToggle');
-  const ruleThirds = document.getElementById('ruleThirds');
-  const colorFXMaster = document.getElementById('colorFXMaster');
-  const bloom = document.getElementById('bloom');
-  const prismatic = document.getElementById('prismatic');
-  const showLetters = document.getElementById('showLetters');
-  const glow = document.getElementById('glow');
-  const vertical = document.getElementById('vertical');
-  const fontSize = document.getElementById('fontSize');
-  const density = document.getElementById('density');
-  const textColor = document.getElementById('textColor');
-  const customText = document.getElementById('customText');
-  const letterPosition = document.getElementById('letterPosition');
-  const fontFamily = document.getElementById('fontFamily');
-  const rotateMax = document.getElementById('rotateMax');
-  const sizeVar = document.getElementById('sizeVar');
-  const clustering = document.getElementById('clustering');
-  const minimalToggle = document.getElementById('minimalToggle');
-  const minimalType = document.getElementById('minimalType');
-  const minimalColor = document.getElementById('minimalColor');
-  const minimalSize = document.getElementById('minimalSize');
-  const minimalSpacing = document.getElementById('minimalSpacing');
-  const minimalOpacity = document.getElementById('minimalOpacity');
-  const ripplesToggle = document.getElementById('ripplesToggle');
-  const rippleStyle = document.getElementById('rippleStyle');
-  const rippleColor = document.getElementById('rippleColor');
-  const rippleThick = document.getElementById('rippleThick');
-  const rippleStep = document.getElementById('rippleStep');
-  const rippleCount = document.getElementById('rippleCount');
-  const rippleX = document.getElementById('rippleX');
-  const rippleY = document.getElementById('rippleY');
-  const rippleOpacity = document.getElementById('rippleOpacity');
-  const sealToggle = document.getElementById('sealToggle');
-  const sealChar = document.getElementById('sealChar');
-  const sealColor = document.getElementById('sealColor');
-  const sealSize = document.getElementById('sealSize');
-  const gradientShape = document.getElementById('gradientShape');
-  const direction = document.getElementById('direction');
-  const gradientPreset = document.getElementById('gradientPreset');
-  const ambientGlowToggle = document.getElementById('ambientGlowToggle');
-  const ambientBaseColor = document.getElementById('ambientBaseColor');
-  const ambientGlowColor = document.getElementById('ambientGlowColor');
-  const ambientPosition = document.getElementById('ambientPosition');
-  const ambientX = document.getElementById('ambientX');
-  const ambientY = document.getElementById('ambientY');
-  const ambientRadius = document.getElementById('ambientRadius');
-  const ambientIntensity = document.getElementById('ambientIntensity');
-  const ambientFeather = document.getElementById('ambientFeather');
+  // ============================================================
+  // DOM CACHE
+  // ============================================================
 
-  const previewCanvas = document.getElementById('previewCanvas');
-  const ctx = previewCanvas.getContext('2d');
+  const baseColorInput = document.getElementById("baseColor");
+  const deviceSelector = document.getElementById("deviceSelector");
+  const darkModeSwitch = document.getElementById("darkModeSwitch");
+  const widthInput = document.getElementById("width");
+  const heightInput = document.getElementById("height");
 
-  // ====================  HELPER FUNCTIONS  ====================
-  function randomColor() { return "#"+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'); }
-  function randomChar(src) { return src[Math.floor(Math.random()*src.length)]; }
+  const paperIntensity = document.getElementById("paperIntensity");
+  const metallic = document.getElementById("metallic");
+  const emboss = document.getElementById("emboss");
 
-  // ----- PALETTE -----
-  function generatePalette() { palette = []; for(let i=0;i<5;i++) palette.push(randomColor()); }
-  function renderPalette() {
-    const container = document.getElementById("palette");
-    container.innerHTML = "";
-    palette.forEach((color, index) => {
-      const box = document.createElement("div"); box.className = "color-box"; box.style.background = color;
-      box.onclick = () => { textColor.value = color; drawPreview(); };
-      const picker = document.createElement("input"); picker.type = "color"; picker.value = color;
-      picker.oninput = (e) => { palette[index] = e.target.value; box.style.background = e.target.value; updatePalettePreview(); drawPreview(); };
-      container.appendChild(box); container.appendChild(picker);
-    });
-    updatePalettePreview();
+  const vignetteToggle = document.getElementById("vignetteToggle");
+  const vignetteStr = document.getElementById("vignetteStr");
+  const lightLeakToggle = document.getElementById("lightLeakToggle");
+  const leakColor = document.getElementById("leakColor");
+  const framingToggle = document.getElementById("framingToggle");
+  const ruleThirds = document.getElementById("ruleThirds");
+
+  const colorFXMaster = document.getElementById("colorFXMaster");
+  const bloom = document.getElementById("bloom");
+  const prismatic = document.getElementById("prismatic");
+
+  const showLetters = document.getElementById("showLetters");
+  const glow = document.getElementById("glow");
+  const vertical = document.getElementById("vertical");
+  const fontSize = document.getElementById("fontSize");
+  const density = document.getElementById("density");
+  const textColor = document.getElementById("textColor");
+  const customText = document.getElementById("customText");
+  const letterPosition = document.getElementById("letterPosition");
+  const fontFamily = document.getElementById("fontFamily");
+  const rotateMax = document.getElementById("rotateMax");
+  const sizeVar = document.getElementById("sizeVar");
+  const clustering = document.getElementById("clustering");
+
+  const minimalToggle = document.getElementById("minimalToggle");
+  const minimalType = document.getElementById("minimalType");
+  const minimalColor = document.getElementById("minimalColor");
+  const minimalSize = document.getElementById("minimalSize");
+  const minimalSpacing = document.getElementById("minimalSpacing");
+  const minimalOpacity = document.getElementById("minimalOpacity");
+
+  const ripplesToggle = document.getElementById("ripplesToggle");
+  const rippleStyle = document.getElementById("rippleStyle");
+  const rippleColor = document.getElementById("rippleColor");
+  const rippleThick = document.getElementById("rippleThick");
+  const rippleStep = document.getElementById("rippleStep");
+  const rippleCount = document.getElementById("rippleCount");
+  const rippleX = document.getElementById("rippleX");
+  const rippleY = document.getElementById("rippleY");
+  const rippleOpacity = document.getElementById("rippleOpacity");
+
+  const sealToggle = document.getElementById("sealToggle");
+  const sealChar = document.getElementById("sealChar");
+  const sealColor = document.getElementById("sealColor");
+  const sealSize = document.getElementById("sealSize");
+
+  const gradientShape = document.getElementById("gradientShape");
+  const direction = document.getElementById("direction");
+  const gradientPreset = document.getElementById("gradientPreset");
+  const gradientQuality = document.getElementById("gradientQuality");
+
+  const ambientGlowToggle = document.getElementById("ambientGlowToggle");
+  const ambientBaseColor = document.getElementById("ambientBaseColor");
+  const ambientGlowColor = document.getElementById("ambientGlowColor");
+  const ambientPosition = document.getElementById("ambientPosition");
+  const ambientX = document.getElementById("ambientX");
+  const ambientY = document.getElementById("ambientY");
+  const ambientRadius = document.getElementById("ambientRadius");
+  const ambientIntensity = document.getElementById("ambientIntensity");
+  const ambientFeather = document.getElementById("ambientFeather");
+
+  const previewCanvas = document.getElementById("previewCanvas");
+  const ctx = previewCanvas.getContext("2d", {
+    alpha: false
+  });
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+
+  function randomColor() {
+    return "#" +
+      Math.floor(Math.random() * 16777216)
+        .toString(16)
+        .padStart(6, "0");
   }
-  function updatePalettePreview() { document.getElementById("palettePreview").style.background = `linear-gradient(to right, ${palette.join(",")})`; }
 
-  // baseColor listener: regenerate palette
-  baseColorInput.addEventListener("input", () => {
-    const base = baseColorInput.value;
-    palette = [];
-    for(let i=0;i<5;i++) {
-      let r = parseInt(base.substr(1,2),16) + Math.floor(Math.random()*40-20);
-      let g = parseInt(base.substr(3,2),16) + Math.floor(Math.random()*40-20);
-      let b = parseInt(base.substr(5,2),16) + Math.floor(Math.random()*40-20);
-      r = Math.max(0,Math.min(255,r)); g = Math.max(0,Math.min(255,g)); b = Math.max(0,Math.min(255,b));
-      palette.push(`#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`);
+  function randomChar(src) {
+    return src[Math.floor(Math.random() * src.length)];
+  }
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function hexToRGB(hex) {
+    hex = String(hex).replace("#", "");
+
+    if (hex.length === 3) {
+      hex = hex.split("").map(c => c + c).join("");
     }
-    renderPalette(); drawPreview();
-  });
 
-  // device selector
-  deviceSelector.addEventListener("change", e => {
-    if(e.target.value==="pc") { widthInput.value=1920; heightInput.value=1080; }
-    else { widthInput.value=1080; heightInput.value=1920; }
-    drawPreview();
-  });
+    const num = parseInt(hex, 16);
 
-  // dark mode
-  darkModeSwitch.addEventListener("change", e => {
-    document.body.className = e.target.checked ? "dark" : "light";
-  });
+    return {
+      r: (num >> 16) & 255,
+      g: (num >> 8) & 255,
+      b: num & 255
+    };
+  }
 
-  // gradient creator
+  function rgbToHex(r, g, b) {
+    return "#" +
+      Math.round(clamp(r, 0, 255)).toString(16).padStart(2, "0") +
+      Math.round(clamp(g, 0, 255)).toString(16).padStart(2, "0") +
+      Math.round(clamp(b, 0, 255)).toString(16).padStart(2, "0");
+  }
+
+  function rgbaStr(hex, alpha) {
+    const c = hexToRGB(hex);
+
+    return `rgba(${c.r},${c.g},${c.b},${clamp(alpha,0,1)})`;
+  }
+
+  // ============================================================
+  // SMOOTH COLOR ENGINE
+  // ============================================================
+
+  function smoothStep(t) {
+    return t * t * (3 - 2 * t);
+  }
+
+  function interpolateColor(c1, c2, t) {
+
+    const a = hexToRGB(c1);
+    const b = hexToRGB(c2);
+
+    t = smoothStep(t);
+
+    return rgbToHex(
+      a.r + (b.r - a.r) * t,
+      a.g + (b.g - a.g) * t,
+      a.b + (b.b - a.b) * t
+    );
+  }
+
+  function createSmoothPalette(colors, stepsPerSegment) {
+
+    if (!colors.length) {
+      return ["#000000"];
+    }
+
+    if (colors.length === 1) {
+      return colors.slice();
+    }
+
+    const result = [];
+
+    for (let i = 0; i < colors.length - 1; i++) {
+
+      const c1 = colors[i];
+      const c2 = colors[i + 1];
+
+      for (let j = 0; j < stepsPerSegment; j++) {
+
+        const t = j / stepsPerSegment;
+
+        result.push(
+          interpolateColor(c1, c2, t)
+        );
+      }
+    }
+
+    result.push(colors[colors.length - 1]);
+
+    return result;
+  }
+
   function createGradient(ctx, w, h) {
+
     const shape = gradientShape.value;
     const dir = direction.value;
+
     let gradient;
-    if(shape === "radial") gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.min(w,h)/2);
-    else if(dir === "to right") gradient = ctx.createLinearGradient(0,0,w,0);
-    else if(dir === "to bottom") gradient = ctx.createLinearGradient(0,0,0,h);
-    else gradient = ctx.createLinearGradient(0,0,w,h);
-    palette.forEach((c,i) => { gradient.addColorStop(i/(palette.length-1), c); });
+
+    if (shape === "radial") {
+
+      gradient = ctx.createRadialGradient(
+        w * .5,
+        h * .5,
+        0,
+        w * .5,
+        h * .5,
+        Math.sqrt(w*w + h*h) * .65
+      );
+
+    } else if (dir === "to right") {
+
+      gradient = ctx.createLinearGradient(
+        0, 0, w, 0
+      );
+
+    } else if (dir === "to bottom") {
+
+      gradient = ctx.createLinearGradient(
+        0, 0, 0, h
+      );
+
+    } else {
+
+      gradient = ctx.createLinearGradient(
+        0, 0, w, h
+      );
+    }
+
+    const steps = parseInt(
+      gradientQuality.value || "32",
+      10
+    );
+
+    const smoothPalette =
+      createSmoothPalette(palette, steps);
+
+    for (let i = 0; i < smoothPalette.length; i++) {
+
+      const position =
+        i / (smoothPalette.length - 1);
+
+      gradient.addColorStop(
+        clamp(position, 0, 1),
+        smoothPalette[i]
+      );
+    }
+
     return gradient;
   }
 
-  // ====================  AMBIENT CORNER GLOW  ====================
-  // Flat dark background + one soft radial glow blob, positioned anywhere on
-  // the canvas — recreates a "dark app background with a corner glow" look
-  // (e.g. black fading into a violet glow in one corner) as a tunable feature.
-  function hexToRgb(hex) {
-    hex = hex.replace('#', '');
-    if(hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-    const num = parseInt(hex, 16);
-    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
-  }
-  function rgbaStr(hex, alpha) {
-    const { r, g, b } = hexToRgb(hex);
-    return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha))})`;
-  }
-  function getAmbientOrigin(w, h) {
-    const preset = ambientPosition.value;
-    const map = {
-      'bottom-left': [0.08, 0.92],
-      'bottom-right': [0.92, 0.92],
-      'top-left': [0.08, 0.08],
-      'top-right': [0.92, 0.08],
-      'center': [0.5, 0.5]
-    };
-    let px, py;
-    if(preset === 'custom') { px = parseFloat(ambientX.value) / 100; py = parseFloat(ambientY.value) / 100; }
-    else { [px, py] = map[preset] || map['bottom-left']; }
-    return { cx: w * px, cy: h * py };
-  }
-  function drawAmbientGlow(ctx, w, h) {
-    const baseCol = ambientBaseColor.value;
-    const glowCol = ambientGlowColor.value;
-    const { cx, cy } = getAmbientOrigin(w, h);
-    const radius = Math.max(w, h) * parseFloat(ambientRadius.value);
-    const intensity = parseFloat(ambientIntensity.value);
-    const feather = parseFloat(ambientFeather.value);
-    const midStop = Math.min(0.85, 0.15 + feather * 0.5);
+  // ============================================================
+  // PALETTE
+  // ============================================================
 
-    // flat dark base fill
+  function generatePalette() {
+
+    palette = [];
+
+    for (let i = 0; i < 5; i++) {
+      palette.push(randomColor());
+    }
+  }
+
+  function generatePaletteFromBase(base) {
+
+    const rgb = hexToRGB(base);
+
+    palette = [];
+
+    for (let i = 0; i < 5; i++) {
+
+      const variation = 18 + i * 4;
+
+      const r = clamp(
+        rgb.r + Math.floor(Math.random() * variation * 2 - variation),
+        0, 255
+      );
+
+      const g = clamp(
+        rgb.g + Math.floor(Math.random() * variation * 2 - variation),
+        0, 255
+      );
+
+      const b = clamp(
+        rgb.b + Math.floor(Math.random() * variation * 2 - variation),
+        0, 255
+      );
+
+      palette.push(
+        rgbToHex(r, g, b)
+      );
+    }
+  }
+
+  function updatePalettePreview() {
+
+    const preview =
+      document.getElementById("palettePreview");
+
+    if (!palette.length) return;
+
+    const smooth =
+      createSmoothPalette(palette, 12);
+
+    preview.style.background =
+      `linear-gradient(to right, ${smooth.join(",")})`;
+  }
+
+  function renderPalette() {
+
+    const container =
+      document.getElementById("palette");
+
+    container.innerHTML = "";
+
+    palette.forEach((color, index) => {
+
+      const item =
+        document.createElement("div");
+
+      item.className = "paletteItem";
+
+      const box =
+        document.createElement("div");
+
+      box.className = "color-box";
+      box.style.background = color;
+
+      box.title = "Click to use this color for text";
+
+      box.onclick = () => {
+
+        textColor.value = palette[index];
+        drawPreview();
+      };
+
+      const picker =
+        document.createElement("input");
+
+      picker.type = "color";
+      picker.value = color;
+
+      picker.oninput = e => {
+
+        palette[index] =
+          e.target.value;
+
+        box.style.background =
+          e.target.value;
+
+        updatePalettePreview();
+        drawPreview();
+      };
+
+      item.appendChild(box);
+      item.appendChild(picker);
+      container.appendChild(item);
+    });
+
+    updatePalettePreview();
+  }
+
+  baseColorInput.addEventListener("input", () => {
+
+    generatePaletteFromBase(
+      baseColorInput.value
+    );
+
+    renderPalette();
+    drawPreview();
+  });
+
+  // ============================================================
+  // DEVICE
+  // ============================================================
+
+  deviceSelector.addEventListener("change", e => {
+
+    if (e.target.value === "pc") {
+
+      widthInput.value = 1920;
+      heightInput.value = 1080;
+
+    } else {
+
+      widthInput.value = 1080;
+      heightInput.value = 1920;
+    }
+
+    drawPreview();
+  });
+
+  // ============================================================
+  // DARK MODE
+  // ============================================================
+
+  darkModeSwitch.addEventListener("change", e => {
+
+    document.body.className =
+      e.target.checked ? "dark" : "light";
+  });
+
+  // ============================================================
+  // AMBIENT GLOW
+  // ============================================================
+
+  function getAmbientOrigin(w, h) {
+
+    const preset =
+      ambientPosition.value;
+
+    const map = {
+      "bottom-left": [0.08, 0.92],
+      "bottom-right": [0.92, 0.92],
+      "top-left": [0.08, 0.08],
+      "top-right": [0.92, 0.08],
+      "left": [0.08, 0.5],
+      "right": [0.92, 0.5],
+      "center": [0.5, 0.5]
+    };
+
+    let px;
+    let py;
+
+    if (preset === "custom") {
+
+      px =
+        parseFloat(ambientX.value) / 100;
+
+      py =
+        parseFloat(ambientY.value) / 100;
+
+    } else {
+
+      [px, py] =
+        map[preset] || map["bottom-left"];
+    }
+
+    return {
+      cx: w * px,
+      cy: h * py
+    };
+  }
+
+  function drawAmbientGlow(ctx, w, h) {
+
+    const baseCol =
+      ambientBaseColor.value;
+
+    const glowCol =
+      ambientGlowColor.value;
+
+    const {cx, cy} =
+      getAmbientOrigin(w, h);
+
+    const radius =
+      Math.max(w, h) *
+      parseFloat(ambientRadius.value);
+
+    const intensity =
+      parseFloat(ambientIntensity.value);
+
+    const softness =
+      parseFloat(ambientFeather.value);
+
+    // Dark OLED-style base
     ctx.fillStyle = baseCol;
     ctx.fillRect(0, 0, w, h);
 
-    // soft glow blob blended over it
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-    grad.addColorStop(0, rgbaStr(glowCol, intensity));
-    grad.addColorStop(midStop, rgbaStr(glowCol, intensity * 0.4));
-    grad.addColorStop(1, rgbaStr(glowCol, 0));
-    ctx.save();
+    // Large, multi-stop glow
+    const grad =
+      ctx.createRadialGradient(
+        cx, cy, 0,
+        cx, cy, radius
+      );
+
+    grad.addColorStop(
+      0,
+      rgbaStr(glowCol, intensity)
+    );
+
+    grad.addColorStop(
+      clamp(.08 + softness * .08, 0, 1),
+      rgbaStr(glowCol, intensity * .92)
+    );
+
+    grad.addColorStop(
+      clamp(.25 + softness * .15, 0, 1),
+      rgbaStr(glowCol, intensity * .55)
+    );
+
+    grad.addColorStop(
+      clamp(.55 + softness * .20, 0, 1),
+      rgbaStr(glowCol, intensity * .18)
+    );
+
+    grad.addColorStop(
+      1,
+      rgbaStr(glowCol, 0)
+    );
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, w, h);
-    ctx.restore();
   }
-  // one-click values sampled from the reference screenshot (dark navy base,
-  // violet glow rising from the bottom-left)
+
   window.applyAmbientReference = function() {
+
     ambientGlowToggle.checked = true;
-    ambientBaseColor.value = '#0c0b11';
-    ambientGlowColor.value = '#4d2fbe';
-    ambientPosition.value = 'custom';
+
+    ambientBaseColor.value = "#0c0b11";
+    ambientGlowColor.value = "#4d2fbe";
+
+    ambientPosition.value = "custom";
+
     ambientX.value = 12;
     ambientY.value = 88;
-    ambientRadius.value = 0.35;
-    ambientIntensity.value = 0.85;
-    ambientFeather.value = 0.55;
+
+    ambientRadius.value = .35;
+    ambientIntensity.value = .85;
+    ambientFeather.value = .55;
+
     drawPreview();
   };
 
-  // preset gradient override (kept for compatibility)
+  // ============================================================
+  // GRADIENT PRESETS
+  // ============================================================
+
   gradientPreset.addEventListener("change", () => {
-    const preset = gradientPreset.value;
-    if(preset === "sunrise") baseColorInput.value = "#ff7e5f";
-    else if(preset === "twilight") baseColorInput.value = "#2b2b4f";
-    else if(preset === "moonlight") baseColorInput.value = "#1f2f3f";
-    baseColorInput.dispatchEvent(new Event('input'));
+
+    const preset =
+      gradientPreset.value;
+
+    if (preset === "sunrise") {
+
+      palette = [
+        "#ff512f",
+        "#f09819",
+        "#ffcf33",
+        "#ff7e5f",
+        "#ffb88c"
+      ];
+
+    } else if (preset === "twilight") {
+
+      palette = [
+        "#0f0c29",
+        "#302b63",
+        "#24243e",
+        "#5f2c82",
+        "#49a09d"
+      ];
+
+    } else if (preset === "moonlight") {
+
+      palette = [
+        "#0f2027",
+        "#203a43",
+        "#2c5364",
+        "#3a6073",
+        "#16222a"
+      ];
+    }
+
+    if (preset) {
+      renderPalette();
+      drawPreview();
+    }
   });
 
-  // ====================  IMPROVED BLOOM (offscreen, no feedback) ====================
+  // ============================================================
+  // BLOOM
+  // ============================================================
+
   function applyBloom(ctx, w, h) {
-    if(!colorFXMaster.checked) return;
-    const bloomInt = parseFloat(bloom.value);
-    if(bloomInt <= 0) return;
-    const offscreen = document.createElement('canvas');
-    offscreen.width = w; offscreen.height = h;
-    const offCtx = offscreen.getContext('2d');
-    offCtx.drawImage(ctx.canvas, 0, 0);
-    offCtx.filter = 'blur(10px)';
-    offCtx.drawImage(ctx.canvas, 0, 0); // draw again with filter
+
+    if (!colorFXMaster.checked) return;
+
+    const amount =
+      parseFloat(bloom.value);
+
+    if (amount <= 0) return;
+
+    const offscreen =
+      document.createElement("canvas");
+
+    offscreen.width = w;
+    offscreen.height = h;
+
+    const offCtx =
+      offscreen.getContext("2d");
+
+    offCtx.drawImage(
+      ctx.canvas,
+      0, 0,
+      w, h
+    );
+
+    offCtx.filter =
+      `blur(${8 + amount * 16}px)`;
+
+    offCtx.drawImage(
+      ctx.canvas,
+      0, 0,
+      w, h
+    );
+
     ctx.save();
-    ctx.globalAlpha = bloomInt * 0.5;
-    ctx.filter = 'none';
-    ctx.drawImage(offscreen, 0, 0);
+
+    ctx.globalAlpha =
+      amount * .38;
+
+    ctx.globalCompositeOperation =
+      "screen";
+
+    ctx.drawImage(
+      offscreen,
+      0, 0,
+      w, h
+    );
+
     ctx.restore();
   }
 
-  // ====================  PERFORMANCE: LETTERS WITH CAP ====================
-  function drawLetters(ctx, w, h) {
-    if(!showLetters.checked) return;
-    const fontSizeBase = parseInt(fontSize.value);
-    const densityVal = parseInt(density.value);
-    const color = textColor.value;
-    const chars = customText.value.trim() || defaultChars;
-    const glowEnabled = glow.checked;
-    const verticalEnabled = vertical.checked;
-    const sizeVarVal = parseFloat(sizeVar.value);
-    const rotateMaxVal = parseFloat(rotateMax.value) * Math.PI/180;
-    const clusteringVal = parseFloat(clustering.value);
-    const fontFamilyVal = fontFamily.value;
-    const position = letterPosition.value;
+  // ============================================================
+  // LETTERS
+  // ============================================================
 
-    // estimate max letters and limit if needed
+  function drawLetters(ctx, w, h) {
+
+    if (!showLetters.checked) return;
+
+    const fontSizeBase =
+      parseInt(fontSize.value, 10);
+
+    const densityVal =
+      Math.max(5, parseInt(density.value, 10));
+
+    const color =
+      textColor.value;
+
+    const chars =
+      Array.from(
+        customText.value.trim() ||
+        defaultChars
+      );
+
+    const glowEnabled =
+      glow.checked;
+
+    const verticalEnabled =
+      vertical.checked;
+
+    const sizeVarVal =
+      parseFloat(sizeVar.value);
+
+    const rotateMaxVal =
+      parseFloat(rotateMax.value) *
+      Math.PI / 180;
+
+    const clusteringVal =
+      parseFloat(clustering.value);
+
+    const fontFamilyVal =
+      fontFamily.value;
+
+    const position =
+      letterPosition.value;
+
     let step = densityVal;
-    const estimated = (w / step) * (h / step);
+
+    const estimated =
+      (w / step) *
+      (h / step);
+
     if (estimated > MAX_LETTERS) {
-      step = Math.sqrt((w * h) / MAX_LETTERS);
+
+      step =
+        Math.sqrt(
+          (w * h) / MAX_LETTERS
+        );
     }
 
-    let offsetX = w/2, offsetY = h/2;
-    if(position.includes("top")) offsetY = 0.2*h;
-    if(position.includes("bottom")) offsetY = 0.8*h;
-    if(position.includes("left")) offsetX = 0.2*w;
-    if(position.includes("right")) offsetX = 0.8*w;
-    if(position === "left") { offsetX = 0.2*w; offsetY = h/2; }
-    if(position === "right") { offsetX = 0.8*w; offsetY = h/2; }
+    let offsetX = w / 2;
+    let offsetY = h / 2;
+
+    if (position.includes("top"))
+      offsetY = h * .2;
+
+    if (position.includes("bottom"))
+      offsetY = h * .8;
+
+    if (position.includes("left"))
+      offsetX = w * .2;
+
+    if (position.includes("right"))
+      offsetX = w * .8;
+
+    if (position === "left") {
+      offsetX = w * .2;
+      offsetY = h / 2;
+    }
+
+    if (position === "right") {
+      offsetX = w * .8;
+      offsetY = h / 2;
+    }
 
     ctx.save();
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.shadowBlur = glowEnabled ? 10 : 0; ctx.shadowColor = glowEnabled ? color : "transparent";
-    for(let x=0; x<w; x+=step) {
-      for(let y=0; y<h; y+=step) {
-        if(Math.random() < clusteringVal*0.8) continue;
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    if (glowEnabled) {
+
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = color;
+    }
+
+    for (let x = 0; x < w; x += step) {
+
+      for (let y = 0; y < h; y += step) {
+
+        if (
+          Math.random() <
+          clusteringVal * .8
+        ) {
+          continue;
+        }
+
         ctx.save();
-        ctx.globalAlpha = Math.random()*0.6+0.3;
-        let size = fontSizeBase * (1 + sizeVarVal * (Math.random()*2-1));
-        ctx.font = `${size}px ${fontFamilyVal}`;
-        if(rotateMaxVal > 0) ctx.rotate((Math.random()*2-1)*rotateMaxVal);
-        let dx = offsetX + x - w/2 + (clusteringVal * 20 * (Math.random()-0.5));
-        let dy = offsetY + y - h/2 + (clusteringVal * 20 * (Math.random()-0.5));
+
+        ctx.globalAlpha =
+          Math.random() * .6 + .3;
+
+        const size =
+          fontSizeBase *
+          (
+            1 +
+            sizeVarVal *
+            (Math.random() * 2 - 1)
+          );
+
+        ctx.font =
+          `${size}px ${fontFamilyVal}`;
+
+        if (rotateMaxVal > 0) {
+
+          ctx.rotate(
+            (Math.random() * 2 - 1) *
+            rotateMaxVal
+          );
+        }
+
+        const dx =
+          offsetX +
+          x -
+          w / 2 +
+          clusteringVal *
+          20 *
+          (Math.random() - .5);
+
+        const dy =
+          offsetY +
+          y -
+          h / 2 +
+          clusteringVal *
+          20 *
+          (Math.random() - .5);
+
         ctx.translate(dx, dy);
-        if(verticalEnabled) ctx.rotate(Math.PI/2);
+
+        if (verticalEnabled) {
+          ctx.rotate(Math.PI / 2);
+        }
+
         ctx.fillStyle = color;
-        ctx.fillText(randomChar(chars), 0, 0);
+
+        ctx.fillText(
+          randomChar(chars),
+          0,
+          0
+        );
+
         ctx.restore();
       }
     }
+
     ctx.restore();
   }
 
-  // ====================  IMPROVED SPIRAL (elegant Archimedean) ====================
+  // ============================================================
+  // RIPPLES
+  // ============================================================
+
   function drawRipples(ctx, w, h) {
-    if(!ripplesToggle.checked) return;
-    const style = rippleStyle.value;
-    const color = rippleColor.value;
-    const thick = parseFloat(rippleThick.value);
-    const step = parseFloat(rippleStep.value);
-    const count = parseInt(rippleCount.value, 10);
-    const offX = parseFloat(rippleX.value);
-    const offY = parseFloat(rippleY.value);
-    const opacity = parseFloat(rippleOpacity.value);
-    const baseX = w/2 + offX;
-    const baseY = h/2 + offY;
+
+    if (!ripplesToggle.checked) return;
+
+    const style =
+      rippleStyle.value;
+
+    const color =
+      rippleColor.value;
+
+    const thick =
+      parseFloat(rippleThick.value);
+
+    const step =
+      parseFloat(rippleStep.value);
+
+    const count =
+      parseInt(rippleCount.value, 10);
+
+    const offX =
+      parseFloat(rippleX.value);
+
+    const offY =
+      parseFloat(rippleY.value);
+
+    const opacity =
+      parseFloat(rippleOpacity.value);
+
+    const baseX =
+      w / 2 + offX;
+
+    const baseY =
+      h / 2 + offY;
 
     ctx.save();
+
     ctx.strokeStyle = color;
     ctx.lineWidth = thick;
     ctx.globalAlpha = opacity;
 
-    if(style === "concentric") {
-      for(let i=1; i<=count; i++) {
+    if (style === "concentric") {
+
+      for (let i = 1; i <= count; i++) {
+
         ctx.beginPath();
-        ctx.arc(baseX, baseY, i * step, 0, 2*Math.PI);
+
+        ctx.arc(
+          baseX,
+          baseY,
+          i * step,
+          0,
+          Math.PI * 2
+        );
+
         ctx.stroke();
       }
-    }
-    else if(style === "multiorigin") {
-      let origins = Math.min(count, 6);
-      for(let o=0; o<origins; o++) {
-        let cx = baseX + (Math.random()-0.5)*200;
-        let cy = baseY + (Math.random()-0.5)*200;
-        for(let i=1; i<=3; i++) {
+
+    } else if (style === "multiorigin") {
+
+      const origins =
+        Math.min(count, 6);
+
+      for (let o = 0; o < origins; o++) {
+
+        const cx =
+          baseX +
+          (Math.random() - .5) *
+          200;
+
+        const cy =
+          baseY +
+          (Math.random() - .5) *
+          200;
+
+        for (let i = 1; i <= 3; i++) {
+
           ctx.beginPath();
-          ctx.arc(cx, cy, i * step * 0.8, 0, 2*Math.PI);
+
+          ctx.arc(
+            cx,
+            cy,
+            i * step * .8,
+            0,
+            Math.PI * 2
+          );
+
           ctx.stroke();
         }
       }
-    }
-    else if(style === "grid") {
-      let cols = Math.floor(Math.sqrt(count*2));
-      let rows = cols;
-      let spacing = step * 1.5;
-      let startX = baseX - (cols-1)*spacing/2;
-      let startY = baseY - (rows-1)*spacing/2;
-      for(let r=0; r<rows; r++) {
-        for(let c=0; c<cols; c++) {
-          let cx = startX + c*spacing;
-          let cy = startY + r*spacing;
-          for(let i=1; i<=3; i++) {
+
+    } else if (style === "grid") {
+
+      const cols =
+        Math.max(
+          1,
+          Math.floor(Math.sqrt(count * 2))
+        );
+
+      const rows = cols;
+
+      const spacing =
+        step * 1.5;
+
+      const startX =
+        baseX -
+        (cols - 1) *
+        spacing / 2;
+
+      const startY =
+        baseY -
+        (rows - 1) *
+        spacing / 2;
+
+      for (let r = 0; r < rows; r++) {
+
+        for (let c = 0; c < cols; c++) {
+
+          const cx =
+            startX +
+            c * spacing;
+
+          const cy =
+            startY +
+            r * spacing;
+
+          for (let i = 1; i <= 3; i++) {
+
             ctx.beginPath();
-            ctx.arc(cx, cy, i * step * 0.6, 0, 2*Math.PI);
+
+            ctx.arc(
+              cx,
+              cy,
+              i * step * .6,
+              0,
+              Math.PI * 2
+            );
+
             ctx.stroke();
           }
         }
       }
-    }
-    else if(style === "offset") {
-      for(let i=1; i<=count; i++) {
-        let shiftX = Math.sin(i) * 20;
-        let shiftY = Math.cos(i) * 20;
+
+    } else if (style === "offset") {
+
+      for (let i = 1; i <= count; i++) {
+
+        const shiftX =
+          Math.sin(i) * 20;
+
+        const shiftY =
+          Math.cos(i) * 20;
+
         ctx.beginPath();
-        ctx.arc(baseX + shiftX, baseY + shiftY, i * step, 0, 2*Math.PI);
+
+        ctx.arc(
+          baseX + shiftX,
+          baseY + shiftY,
+          i * step,
+          0,
+          Math.PI * 2
+        );
+
         ctx.stroke();
       }
-    }
-    else if(style === "spiral") {
-      // Archimedean spiral: r = a + b * theta
-      const a = step * 0.5;
-      const b = step / (2 * Math.PI);  // step increase per full rotation
-      const turns = count / 2;
-      const maxTheta = turns * 2 * Math.PI;
-      const angleStep = 0.15; // rad
-      for(let theta = 0; theta < maxTheta; theta += angleStep) {
-        let r = a + b * theta;
-        let cx = baseX + r * Math.cos(theta);
-        let cy = baseY + r * Math.sin(theta);
-        // draw a small circle (like a dot) along spiral, size proportional to thick
-        ctx.beginPath();
-        ctx.arc(cx, cy, thick * 0.8, 0, 2*Math.PI);
-        ctx.fillStyle = color; // fill to make it visible
-        ctx.fill();
+
+    } else if (style === "spiral") {
+
+      const a = step * .5;
+      const b =
+        step / (Math.PI * 2);
+
+      const turns =
+        count / 2;
+
+      const maxTheta =
+        turns * Math.PI * 2;
+
+      const angleStep = .12;
+
+      ctx.beginPath();
+
+      for (
+        let theta = 0;
+        theta < maxTheta;
+        theta += angleStep
+      ) {
+
+        const r =
+          a + b * theta;
+
+        const x =
+          baseX +
+          r * Math.cos(theta);
+
+        const y =
+          baseY +
+          r * Math.sin(theta);
+
+        if (theta === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
       }
+
+      ctx.stroke();
     }
+
     ctx.restore();
   }
 
-  // ====================  OTHER DRAWING FUNCTIONS (unchanged but kept) ====================
+  // ============================================================
+  // TEXTURE
+  // ============================================================
+
   function applyPaperTexture(ctx, w, h) {
-    const intensity = parseFloat(paperIntensity.value);
-    if(intensity <= 0) return;
-    const imageData = ctx.getImageData(0,0,w,h);
-    const data = imageData.data;
-    for(let i=0; i<data.length; i+=4) {
-      let noise = (Math.random() * 2 - 1) * intensity * 30;
-      data[i] = Math.min(255, Math.max(0, data[i] + noise));
-      data[i+1] = Math.min(255, Math.max(0, data[i+1] + noise));
-      data[i+2] = Math.min(255, Math.max(0, data[i+2] + noise));
+
+    const intensity =
+      parseFloat(paperIntensity.value);
+
+    if (intensity <= 0) return;
+
+    const imageData =
+      ctx.getImageData(
+        0, 0, w, h
+      );
+
+    const data =
+      imageData.data;
+
+    // Subtle noise instead of heavy paper effect
+    const strength =
+      intensity * 18;
+
+    for (let i = 0; i < data.length; i += 4) {
+
+      const noise =
+        (Math.random() * 2 - 1) *
+        strength;
+
+      data[i] =
+        clamp(data[i] + noise, 0, 255);
+
+      data[i + 1] =
+        clamp(data[i + 1] + noise, 0, 255);
+
+      data[i + 2] =
+        clamp(data[i + 2] + noise, 0, 255);
     }
-    ctx.putImageData(imageData,0,0);
+
+    ctx.putImageData(
+      imageData,
+      0,
+      0
+    );
   }
+
   function applyMetallic(ctx, w, h) {
-    const val = parseFloat(metallic.value);
-    if(val <= 0) return;
-    ctx.fillStyle = `rgba(255,255,200,${val*0.1})`;
-    ctx.fillRect(0,0,w,h);
+
+    const val =
+      parseFloat(metallic.value);
+
+    if (val <= 0) return;
+
+    const grad =
+      ctx.createLinearGradient(
+        0, 0,
+        w, h
+      );
+
+    grad.addColorStop(
+      0,
+      `rgba(255,255,255,${val * .06})`
+    );
+
+    grad.addColorStop(
+      .5,
+      `rgba(255,255,255,${val * .01})`
+    );
+
+    grad.addColorStop(
+      1,
+      `rgba(255,255,220,${val * .08})`
+    );
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
   }
+
   function applyEmboss(ctx, w, h) {
-    const val = parseFloat(emboss.value);
-    if(val <= 0) return;
+
+    const val =
+      parseFloat(emboss.value);
+
+    if (val <= 0) return;
+
     ctx.save();
-    ctx.globalAlpha = val * 0.2;
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2;
-    for(let i=0; i<10; i++) {
-      ctx.beginPath();
-      ctx.moveTo(Math.random()*w, Math.random()*h);
-      ctx.lineTo(Math.random()*w, Math.random()*h);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-  function drawRuleOfThirds(ctx, w, h) {
-    if(!ruleThirds.checked) return;
-    ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,0.2)";
+
+    ctx.globalAlpha =
+      val * .15;
+
+    ctx.strokeStyle =
+      "#ffffff";
+
     ctx.lineWidth = 1;
-    for(let i=1; i<3; i++) {
+
+    for (let i = 0; i < 10; i++) {
+
       ctx.beginPath();
-      ctx.moveTo(w * i/3, 0); ctx.lineTo(w * i/3, h);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(0, h * i/3); ctx.lineTo(w, h * i/3);
+
+      ctx.moveTo(
+        Math.random() * w,
+        Math.random() * h
+      );
+
+      ctx.lineTo(
+        Math.random() * w,
+        Math.random() * h
+      );
+
       ctx.stroke();
     }
+
     ctx.restore();
   }
+
+  // ============================================================
+  // COMPOSITION
+  // ============================================================
+
+  function drawRuleOfThirds(ctx, w, h) {
+
+    if (!ruleThirds.checked) return;
+
+    ctx.save();
+
+    ctx.strokeStyle =
+      "rgba(255,255,255,.2)";
+
+    ctx.lineWidth = 1;
+
+    for (let i = 1; i < 3; i++) {
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        w * i / 3,
+        0
+      );
+
+      ctx.lineTo(
+        w * i / 3,
+        h
+      );
+
+      ctx.stroke();
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        0,
+        h * i / 3
+      );
+
+      ctx.lineTo(
+        w,
+        h * i / 3
+      );
+
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
   function applyVignette(ctx, w, h) {
-    if(!vignetteToggle.checked) return;
-    const strength = parseFloat(vignetteStr.value);
-    const gradient = ctx.createRadialGradient(w/2, h/2, 0, w/2, h/2, Math.max(w,h)/2);
-    gradient.addColorStop(0, "rgba(0,0,0,0)");
-    gradient.addColorStop(0.8, `rgba(0,0,0,${strength*0.5})`);
-    gradient.addColorStop(1, `rgba(0,0,0,${strength})`);
-    ctx.fillStyle = gradient;
-    ctx.globalCompositeOperation = "multiply";
-    ctx.fillRect(0,0,w,h);
-    ctx.globalCompositeOperation = "source-over";
-  }
-  function applyLightLeak(ctx, w, h) {
-    if(!lightLeakToggle.checked) return;
-    const color = leakColor.value;
-    const leakGrad = ctx.createLinearGradient(0,0,w*0.3,0);
-    leakGrad.addColorStop(0, color + "80");
-    leakGrad.addColorStop(1, "transparent");
-    ctx.fillStyle = leakGrad;
-    ctx.fillRect(0,0,w*0.5,h);
-  }
-  function applyFraming(ctx, w, h) {
-    if(!framingToggle.checked) return;
+
+    if (!vignetteToggle.checked) return;
+
+    const strength =
+      parseFloat(vignetteStr.value);
+
+    const gradient =
+      ctx.createRadialGradient(
+        w / 2,
+        h / 2,
+        0,
+        w / 2,
+        h / 2,
+        Math.max(w, h) * .7
+      );
+
+    gradient.addColorStop(
+      0,
+      "rgba(0,0,0,0)"
+    );
+
+    gradient.addColorStop(
+      .65,
+      `rgba(0,0,0,${strength * .15})`
+    );
+
+    gradient.addColorStop(
+      .82,
+      `rgba(0,0,0,${strength * .5})`
+    );
+
+    gradient.addColorStop(
+      1,
+      `rgba(0,0,0,${strength})`
+    );
+
     ctx.save();
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
-    ctx.lineWidth = 12;
-    ctx.strokeRect(6,6,w-12,h-12);
+
+    ctx.fillStyle = gradient;
+
+    ctx.globalCompositeOperation =
+      "multiply";
+
+    ctx.fillRect(0, 0, w, h);
+
     ctx.restore();
   }
-  function applyPrismatic(ctx, w, h) {
-    if(!colorFXMaster.checked) return;
-    const prism = parseFloat(prismatic.value);
-    if(prism <= 0) return;
-    const imageData = ctx.getImageData(0,0,w,h);
-    const data = imageData.data;
-    for(let i=0; i<data.length; i+=4) {
-      if(i+4 < data.length) {
-        data[i] = Math.min(255, data[i] + prism*30);
-      }
-    }
-    ctx.putImageData(imageData,0,0);
-  }
-  function drawMinimalist(ctx, w, h) {
-    if(!minimalToggle.checked) return;
-    const type = minimalType.value;
-    const color = minimalColor.value;
-    const baseSize = parseFloat(minimalSize.value);
-    const spacing = parseFloat(minimalSpacing.value);
-    const opacity = parseFloat(minimalOpacity.value);
+
+  function applyLightLeak(ctx, w, h) {
+
+    if (!lightLeakToggle.checked) return;
+
+    const color =
+      leakColor.value;
+
+    const leak =
+      ctx.createRadialGradient(
+        0,
+        h * .5,
+        0,
+        0,
+        h * .5,
+        w * .55
+      );
+
+    leak.addColorStop(
+      0,
+      rgbaStr(color, .35)
+    );
+
+    leak.addColorStop(
+      .35,
+      rgbaStr(color, .12)
+    );
+
+    leak.addColorStop(
+      1,
+      rgbaStr(color, 0)
+    );
+
     ctx.save();
+
+    ctx.fillStyle = leak;
+
+    ctx.globalCompositeOperation =
+      "screen";
+
+    ctx.fillRect(
+      0, 0,
+      w, h
+    );
+
+    ctx.restore();
+  }
+
+  function applyFraming(ctx, w, h) {
+
+    if (!framingToggle.checked) return;
+
+    ctx.save();
+
+    ctx.strokeStyle =
+      "rgba(255,255,255,.3)";
+
+    ctx.lineWidth = 12;
+
+    ctx.strokeRect(
+      6,
+      6,
+      w - 12,
+      h - 12
+    );
+
+    ctx.restore();
+  }
+
+  // ============================================================
+  // PRISMATIC
+  // ============================================================
+
+  function applyPrismatic(ctx, w, h) {
+
+    if (!colorFXMaster.checked) return;
+
+    const prism =
+      parseFloat(prismatic.value);
+
+    if (prism <= 0) return;
+
+    const imageData =
+      ctx.getImageData(
+        0, 0, w, h
+      );
+
+    const data =
+      imageData.data;
+
+    const amount =
+      prism * 22;
+
+    for (
+      let i = 0;
+      i < data.length;
+      i += 4
+    ) {
+
+      data[i] =
+        clamp(data[i] + amount, 0, 255);
+
+      data[i + 2] =
+        clamp(data[i + 2] + amount * .18, 0, 255);
+    }
+
+    ctx.putImageData(
+      imageData,
+      0,
+      0
+    );
+  }
+
+  // ============================================================
+  // MINIMALIST
+  // ============================================================
+
+  function drawMinimalist(ctx, w, h) {
+
+    if (!minimalToggle.checked) return;
+
+    const type =
+      minimalType.value;
+
+    const color =
+      minimalColor.value;
+
+    const baseSize =
+      parseFloat(minimalSize.value);
+
+    const spacing =
+      parseFloat(minimalSpacing.value);
+
+    const opacity =
+      parseFloat(minimalOpacity.value);
+
+    ctx.save();
+
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
-    ctx.lineWidth = baseSize/2;
+    ctx.lineWidth =
+      Math.max(.5, baseSize / 2);
+
     ctx.globalAlpha = opacity;
-    if(type === "dots") {
-      for(let x=spacing/2; x<w; x+=spacing) {
-        for(let y=spacing/2; y<h; y+=spacing) {
-          ctx.beginPath(); ctx.arc(x, y, baseSize/2, 0, 2*Math.PI); ctx.fill();
+
+    if (type === "dots") {
+
+      for (
+        let x = spacing / 2;
+        x < w;
+        x += spacing
+      ) {
+
+        for (
+          let y = spacing / 2;
+          y < h;
+          y += spacing
+        ) {
+
+          ctx.beginPath();
+
+          ctx.arc(
+            x, y,
+            baseSize / 2,
+            0,
+            Math.PI * 2
+          );
+
+          ctx.fill();
         }
       }
-    } else if(type === "lines") {
+
+    } else if (type === "lines") {
+
       ctx.beginPath();
-      for(let x=spacing/2; x<w; x+=spacing) { ctx.moveTo(x,0); ctx.lineTo(x,h); }
-      for(let y=spacing/2; y<h; y+=spacing) { ctx.moveTo(0,y); ctx.lineTo(w,y); }
+
+      for (
+        let x = spacing / 2;
+        x < w;
+        x += spacing
+      ) {
+
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+
+      for (
+        let y = spacing / 2;
+        y < h;
+        y += spacing
+      ) {
+
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+
       ctx.stroke();
-    } else if(type === "grid") {
+
+    } else if (type === "grid") {
+
       ctx.beginPath();
-      for(let x=spacing; x<w; x+=spacing) { ctx.moveTo(x,0); ctx.lineTo(x,h); }
-      for(let y=spacing; y<h; y+=spacing) { ctx.moveTo(0,y); ctx.lineTo(w,y); }
+
+      for (
+        let x = spacing;
+        x < w;
+        x += spacing
+      ) {
+
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+
+      for (
+        let y = spacing;
+        y < h;
+        y += spacing
+      ) {
+
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+
       ctx.stroke();
-    } else if(type === "circles") {
-      for(let x=spacing; x<w; x+=spacing) {
-        for(let y=spacing; y<h; y+=spacing) {
-          ctx.beginPath(); ctx.arc(x, y, baseSize, 0, 2*Math.PI); ctx.stroke();
+
+    } else if (type === "circles") {
+
+      for (
+        let x = spacing;
+        x < w;
+        x += spacing
+      ) {
+
+        for (
+          let y = spacing;
+          y < h;
+          y += spacing
+        ) {
+
+          ctx.beginPath();
+
+          ctx.arc(
+            x,
+            y,
+            baseSize,
+            0,
+            Math.PI * 2
+          );
+
+          ctx.stroke();
         }
       }
-    } else if(type === "squares") {
-      for(let x=spacing; x<w; x+=spacing) {
-        for(let y=spacing; y<h; y+=spacing) {
-          ctx.strokeRect(x - baseSize/2, y - baseSize/2, baseSize, baseSize);
+
+    } else if (type === "squares") {
+
+      for (
+        let x = spacing;
+        x < w;
+        x += spacing
+      ) {
+
+        for (
+          let y = spacing;
+          y < h;
+          y += spacing
+        ) {
+
+          ctx.strokeRect(
+            x - baseSize / 2,
+            y - baseSize / 2,
+            baseSize,
+            baseSize
+          );
         }
       }
     }
+
     ctx.restore();
   }
+
+  // ============================================================
+  // SEAL
+  // ============================================================
+
   function drawSeal(ctx, w, h) {
-    if(!sealToggle.checked) return;
-    const kanji = sealChar.value || "波";
-    const color = sealColor.value;
-    const size = parseInt(sealSize.value, 10);
+
+    if (!sealToggle.checked) return;
+
+    const kanji =
+      sealChar.value || "波";
+
+    const color =
+      sealColor.value;
+
+    const size =
+      parseInt(sealSize.value, 10);
+
     ctx.save();
-    ctx.font = `${size}px serif`;
+
+    ctx.font =
+      `${size}px serif`;
+
     ctx.fillStyle = color;
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 0.9;
-    ctx.fillText(kanji, w - size*1.2, h - size*0.3);
+    ctx.globalAlpha = .9;
+
+    ctx.fillText(
+      kanji,
+      w - size * 1.2,
+      h - size * .3
+    );
+
     ctx.restore();
   }
 
-  // ====================  MAIN DRAW PREVIEW ====================
-  function drawPreview() {
-    const w = previewCanvas.offsetWidth, h = previewCanvas.offsetHeight;
-    previewCanvas.width = w; previewCanvas.height = h;
-    ctx.clearRect(0,0,w,h);
+  // ============================================================
+  // MAIN RENDER PIPELINE
+  // ============================================================
 
-    if(ambientGlowToggle.checked) {
-      drawAmbientGlow(ctx, w, h);
+  function renderWallpaper(ctx, w, h) {
+
+    ctx.clearRect(
+      0, 0,
+      w, h
+    );
+
+    if (ambientGlowToggle.checked) {
+
+      drawAmbientGlow(
+        ctx,
+        w,
+        h
+      );
+
     } else {
-      ctx.fillStyle = createGradient(ctx, w, h);
-      ctx.fillRect(0,0,w,h);
+
+      ctx.fillStyle =
+        createGradient(
+          ctx,
+          w,
+          h
+        );
+
+      ctx.fillRect(
+        0,
+        0,
+        w,
+        h
+      );
     }
 
     applyMetallic(ctx, w, h);
     applyEmboss(ctx, w, h);
+
     drawLetters(ctx, w, h);
     drawMinimalist(ctx, w, h);
     drawRipples(ctx, w, h);
+
     applyVignette(ctx, w, h);
     applyLightLeak(ctx, w, h);
     applyFraming(ctx, w, h);
+
     applyBloom(ctx, w, h);
     applyPrismatic(ctx, w, h);
+
     applyPaperTexture(ctx, w, h);
+
     drawSeal(ctx, w, h);
     drawRuleOfThirds(ctx, w, h);
   }
 
-  // ====================  DOWNLOAD (full res) ====================
+  // ============================================================
+  // HD PREVIEW
+  // ============================================================
+
+  let resizeTimer = null;
+
+  function drawPreview() {
+
+    const cssW =
+      Math.max(
+        1,
+        previewCanvas.clientWidth
+      );
+
+    const cssH =
+      Math.max(
+        1,
+        previewCanvas.clientHeight
+      );
+
+    const dpr =
+      Math.min(
+        window.devicePixelRatio || 1,
+        2.5
+      );
+
+    previewCanvas.width =
+      Math.round(cssW * dpr);
+
+    previewCanvas.height =
+      Math.round(cssH * dpr);
+
+    ctx.setTransform(
+      dpr,
+      0,
+      0,
+      dpr,
+      0,
+      0
+    );
+
+    renderWallpaper(
+      ctx,
+      cssW,
+      cssH
+    );
+  }
+
+  window.addEventListener(
+    "resize",
+    () => {
+
+      clearTimeout(resizeTimer);
+
+      resizeTimer =
+        setTimeout(
+          drawPreview,
+          100
+        );
+    }
+  );
+
+  // ============================================================
+  // HD DOWNLOAD
+  // ============================================================
+
   function downloadWallpaper() {
-    const w = parseInt(widthInput.value);
-    const h = parseInt(heightInput.value);
-    const canvasDL = document.createElement("canvas");
-    canvasDL.width = w; canvasDL.height = h;
-    const dlCtx = canvasDL.getContext("2d");
 
-    if(ambientGlowToggle.checked) {
-      drawAmbientGlow(dlCtx, w, h);
-    } else {
-      dlCtx.fillStyle = createGradient(dlCtx, w, h);
-      dlCtx.fillRect(0,0,w,h);
-    }
+    let w =
+      parseInt(widthInput.value, 10);
 
-    applyMetallic(dlCtx, w, h);
-    applyEmboss(dlCtx, w, h);
-    drawLetters(dlCtx, w, h);
-    drawMinimalist(dlCtx, w, h);
-    drawRipples(dlCtx, w, h);
-    applyVignette(dlCtx, w, h);
-    applyLightLeak(dlCtx, w, h);
-    applyFraming(dlCtx, w, h);
-    applyBloom(dlCtx, w, h);
-    applyPrismatic(dlCtx, w, h);
-    applyPaperTexture(dlCtx, w, h);
-    drawSeal(dlCtx, w, h);
-    drawRuleOfThirds(dlCtx, w, h);
+    let h =
+      parseInt(heightInput.value, 10);
 
-    const link = document.createElement("a");
-    link.download = `wallpaper-${w}x${h}.png`;
-    link.href = canvasDL.toDataURL("image/png");
-    link.click();
+    w = clamp(
+      Number.isFinite(w) ? w : 1920,
+      64,
+      16384
+    );
+
+    h = clamp(
+      Number.isFinite(h) ? h : 1080,
+      64,
+      16384
+    );
+
+    widthInput.value = w;
+    heightInput.value = h;
+
+    const canvasDL =
+      document.createElement("canvas");
+
+    canvasDL.width = w;
+    canvasDL.height = h;
+
+    const dlCtx =
+      canvasDL.getContext(
+        "2d",
+        { alpha: false }
+      );
+
+    dlCtx.imageSmoothingEnabled = true;
+    dlCtx.imageSmoothingQuality = "high";
+
+    renderWallpaper(
+      dlCtx,
+      w,
+      h
+    );
+
+    canvasDL.toBlob(
+      blob => {
+
+        if (!blob) {
+          alert("Could not create the wallpaper.");
+          return;
+        }
+
+        const url =
+          URL.createObjectURL(blob);
+
+        const link =
+          document.createElement("a");
+
+        link.download =
+          `wallpaper-${w}x${h}.png`;
+
+        link.href = url;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        setTimeout(
+          () => URL.revokeObjectURL(url),
+          1000
+        );
+
+      },
+      "image/png"
+    );
   }
 
-  // ====================  RANDOMIZE ALL ====================
+  // ============================================================
+  // RANDOMIZE
+  // ============================================================
+
   function randomizeAll() {
-    baseColorInput.value = randomColor();
-    baseColorInput.dispatchEvent(new Event('input'));
-    paperIntensity.value = Math.random()*0.5;
-    metallic.value = Math.random()*0.5;
-    emboss.value = Math.random()*0.5;
-    vignetteStr.value = Math.random()*0.7;
-    bloom.value = Math.random()*0.5;
-    prismatic.value = Math.random()*0.4;
-    showLetters.checked = Math.random()>0.2;
-    glow.checked = Math.random()>0.5;
-    vertical.checked = Math.random()>0.8;
-    fontSize.value = 15 + Math.floor(Math.random()*30);
-    density.value = 40 + Math.floor(Math.random()*60);
-    textColor.value = randomColor();
-    rotateMax.value = Math.random()*30;
-    sizeVar.value = Math.random()*0.8;
-    clustering.value = Math.random()*0.8;
-    minimalToggle.checked = Math.random()>0.5;
-    const types = ["dots","lines","grid","circles","squares"];
-    minimalType.value = types[Math.floor(Math.random()*types.length)];
-    minimalColor.value = randomColor();
-    minimalSize.value = 2 + Math.random()*15;
-    minimalSpacing.value = 10 + Math.random()*80;
-    minimalOpacity.value = 0.2 + Math.random()*0.7;
-    ripplesToggle.checked = Math.random()>0.3;
-    const rStyles = ["concentric","multiorigin","grid","offset","spiral"];
-    rippleStyle.value = rStyles[Math.floor(Math.random()*rStyles.length)];
-    rippleColor.value = randomColor();
-    rippleThick.value = 1 + Math.random()*8;
-    rippleStep.value = 15 + Math.random()*70;
-    rippleCount.value = 2 + Math.floor(Math.random()*12);
-    rippleX.value = (Math.random()-0.5)*300;
-    rippleY.value = (Math.random()-0.5)*300;
-    rippleOpacity.value = 0.3 + Math.random()*0.6;
-    sealToggle.checked = Math.random()>0.3;
-    sealChar.value = ["波","桜","心","夢","光"][Math.floor(Math.random()*5)];
-    sealColor.value = randomColor();
-    sealSize.value = 30 + Math.random()*40;
-    vignetteToggle.checked = Math.random()>0.5;
-    lightLeakToggle.checked = Math.random()>0.5;
-    framingToggle.checked = Math.random()>0.5;
-    ruleThirds.checked = Math.random()>0.5;
-    colorFXMaster.checked = Math.random()>0.3;
-    ambientGlowToggle.checked = Math.random()>0.6;
-    ambientBaseColor.value = randomColor();
-    ambientGlowColor.value = randomColor();
-    const ambientPositions = ["bottom-left","bottom-right","top-left","top-right","center"];
-    ambientPosition.value = ambientPositions[Math.floor(Math.random()*ambientPositions.length)];
-    ambientRadius.value = 0.15 + Math.random()*0.6;
-    ambientIntensity.value = 0.4 + Math.random()*0.6;
-    ambientFeather.value = Math.random();
+
+    baseColorInput.value =
+      randomColor();
+
+    generatePaletteFromBase(
+      baseColorInput.value
+    );
+
+    paperIntensity.value =
+      Math.random() * .25;
+
+    metallic.value =
+      Math.random() * .35;
+
+    emboss.value =
+      Math.random() * .25;
+
+    vignetteStr.value =
+      Math.random() * .7;
+
+    bloom.value =
+      Math.random() * .5;
+
+    prismatic.value =
+      Math.random() * .35;
+
+    showLetters.checked =
+      Math.random() > .2;
+
+    glow.checked =
+      Math.random() > .5;
+
+    vertical.checked =
+      Math.random() > .8;
+
+    fontSize.value =
+      15 +
+      Math.floor(Math.random() * 30);
+
+    density.value =
+      40 +
+      Math.floor(Math.random() * 60);
+
+    textColor.value =
+      randomColor();
+
+    rotateMax.value =
+      Math.random() * 30;
+
+    sizeVar.value =
+      Math.random() * .8;
+
+    clustering.value =
+      Math.random() * .8;
+
+    minimalToggle.checked =
+      Math.random() > .5;
+
+    const types = [
+      "dots",
+      "lines",
+      "grid",
+      "circles",
+      "squares"
+    ];
+
+    minimalType.value =
+      types[
+        Math.floor(
+          Math.random() * types.length
+        )
+      ];
+
+    minimalColor.value =
+      randomColor();
+
+    minimalSize.value =
+      2 + Math.random() * 15;
+
+    minimalSpacing.value =
+      10 + Math.random() * 80;
+
+    minimalOpacity.value =
+      .2 + Math.random() * .7;
+
+    ripplesToggle.checked =
+      Math.random() > .3;
+
+    const styles = [
+      "concentric",
+      "multiorigin",
+      "grid",
+      "offset",
+      "spiral"
+    ];
+
+    rippleStyle.value =
+      styles[
+        Math.floor(
+          Math.random() * styles.length
+        )
+      ];
+
+    rippleColor.value =
+      randomColor();
+
+    rippleThick.value =
+      1 + Math.random() * 8;
+
+    rippleStep.value =
+      15 + Math.random() * 70;
+
+    rippleCount.value =
+      2 +
+      Math.floor(
+        Math.random() * 12
+      );
+
+    rippleX.value =
+      (Math.random() - .5) * 300;
+
+    rippleY.value =
+      (Math.random() - .5) * 300;
+
+    rippleOpacity.value =
+      .3 + Math.random() * .6;
+
+    sealToggle.checked =
+      Math.random() > .3;
+
+    sealChar.value =
+      ["波","桜","心","夢","光"][
+        Math.floor(
+          Math.random() * 5
+        )
+      ];
+
+    sealColor.value =
+      randomColor();
+
+    sealSize.value =
+      30 + Math.random() * 40;
+
+    vignetteToggle.checked =
+      Math.random() > .5;
+
+    lightLeakToggle.checked =
+      Math.random() > .5;
+
+    framingToggle.checked =
+      Math.random() > .5;
+
+    ruleThirds.checked =
+      Math.random() > .5;
+
+    colorFXMaster.checked =
+      Math.random() > .3;
+
+    ambientGlowToggle.checked =
+      Math.random() > .6;
+
+    ambientBaseColor.value =
+      randomColor();
+
+    ambientGlowColor.value =
+      randomColor();
+
+    const positions = [
+      "bottom-left",
+      "bottom-right",
+      "top-left",
+      "top-right",
+      "left",
+      "right",
+      "center"
+    ];
+
+    ambientPosition.value =
+      positions[
+        Math.floor(
+          Math.random() * positions.length
+        )
+      ];
+
+    ambientRadius.value =
+      .15 + Math.random() * .6;
+
+    ambientIntensity.value =
+      .4 + Math.random() * .6;
+
+    ambientFeather.value =
+      Math.random();
+
+    renderPalette();
     drawPreview();
   }
 
-  // ====================  FULL WALLPAPER PRESETS ====================
-  window.applyWallpaperPreset = function() {
-    const preset = document.getElementById('wallpaperPreset').value;
-    // set various controls
-    if(preset === 'default') {
-      baseColorInput.value = '#007aff';
-      showLetters.checked = true; glow.checked = false; vertical.checked = false;
-      fontSize.value = 20; density.value = 70; textColor.value = '#ffffff';
-      rotateMax.value = 0; sizeVar.value = 0.3; clustering.value = 0;
-      minimalToggle.checked = false;
-      ripplesToggle.checked = true; rippleStyle.value = 'concentric'; rippleColor.value = '#88aaff';
-      rippleThick.value = 2; rippleStep.value = 30; rippleCount.value = 5; rippleOpacity.value = 0.6;
-      sealToggle.checked = true; sealChar.value = '波'; sealColor.value = '#aa2222'; sealSize.value = 40;
-      vignetteToggle.checked = false; lightLeakToggle.checked = false; framingToggle.checked = false; ruleThirds.checked = false;
-      colorFXMaster.checked = true; bloom.value = 0; prismatic.value = 0;
-      paperIntensity.value = 0;  // ensure paper is off
-    } else if(preset === 'minimalRipples') {
-      baseColorInput.value = '#2c3e50';
-      showLetters.checked = false;
-      minimalToggle.checked = true; minimalType.value = 'dots'; minimalColor.value = '#95a5a6'; minimalSize.value = 3; minimalSpacing.value = 40; minimalOpacity.value = 0.4;
-      ripplesToggle.checked = true; rippleStyle.value = 'grid'; rippleColor.value = '#ecf0f1'; rippleThick.value = 1; rippleStep.value = 50; rippleCount.value = 8; rippleOpacity.value = 0.3;
-      sealToggle.checked = true; sealChar.value = '静'; sealColor.value = '#e67e22'; sealSize.value = 35;
-      vignetteToggle.checked = true; vignetteStr.value = 0.5; framingToggle.checked = true;
-      bloom.value = 0.1; prismatic.value = 0;
-      paperIntensity.value = 0;
-    } else if(preset === 'darkGeometric') {
-      baseColorInput.value = '#1a1a2e';
-      showLetters.checked = true; glow.checked = true; textColor.value = '#e0e0e0';
-      fontSize.value = 24; density.value = 80; clustering.value = 0.2;
-      minimalToggle.checked = true; minimalType.value = 'lines'; minimalColor.value = '#4e4e6e'; minimalSize.value = 2; minimalSpacing.value = 50; minimalOpacity.value = 0.5;
-      ripplesToggle.checked = true; rippleStyle.value = 'offset'; rippleColor.value = '#6a4e9e'; rippleThick.value = 3; rippleStep.value = 40; rippleCount.value = 6; rippleOpacity.value = 0.5;
-      sealToggle.checked = false;
-      vignetteToggle.checked = true; vignetteStr.value = 0.7; lightLeakToggle.checked = true; leakColor.value = '#4a2a6a';
-      bloom.value = 0.2; prismatic.value = 0.1;
-      paperIntensity.value = 0.1; // slight paper for texture
-    } else if(preset === 'vibrantBloom') {
-      baseColorInput.value = '#ff6b6b';
-      showLetters.checked = true; glow.checked = true; textColor.value = '#ffffaa';
-      fontSize.value = 30; density.value = 60; rotateMax.value = 15;
-      minimalToggle.checked = false;
-      ripplesToggle.checked = true; rippleStyle.value = 'multiorigin'; rippleColor.value = '#ffd966'; rippleThick.value = 4; rippleStep.value = 35; rippleCount.value = 10; rippleOpacity.value = 0.8;
-      sealToggle.checked = true; sealChar.value = '光'; sealColor.value = '#ffaa00'; sealSize.value = 45;
-      vignetteToggle.checked = false; lightLeakToggle.checked = true; leakColor.value = '#ffaa88';
-      bloom.value = 0.7; prismatic.value = 0.3;
-      paperIntensity.value = 0;
-    } else if(preset === 'monochromeLines') {
-      baseColorInput.value = '#333333';
-      showLetters.checked = false;
-      minimalToggle.checked = true; minimalType.value = 'grid'; minimalColor.value = '#aaaaaa'; minimalSize.value = 1; minimalSpacing.value = 40; minimalOpacity.value = 0.3;
-      ripplesToggle.checked = true; rippleStyle.value = 'spiral'; rippleColor.value = '#cccccc'; rippleThick.value = 2; rippleStep.value = 30; rippleCount.value = 8; rippleOpacity.value = 0.4;
-      sealToggle.checked = true; sealChar.value = '影'; sealColor.value = '#888888'; sealSize.value = 38;
-      vignetteToggle.checked = true; vignetteStr.value = 0.4; framingToggle.checked = true;
-      bloom.value = 0; prismatic.value = 0;
-      paperIntensity.value = 0;
-    } else if(preset === 'violetGlow') {
-      showLetters.checked = false;
-      minimalToggle.checked = false;
-      ripplesToggle.checked = false;
-      sealToggle.checked = false;
-      vignetteToggle.checked = false; lightLeakToggle.checked = false; framingToggle.checked = false; ruleThirds.checked = false;
-      colorFXMaster.checked = false; bloom.value = 0; prismatic.value = 0;
-      paperIntensity.value = 0; metallic.value = 0; emboss.value = 0;
-      ambientGlowToggle.checked = true;
-      ambientBaseColor.value = '#0c0b11';
-      ambientGlowColor.value = '#4d2fbe';
-      ambientPosition.value = 'custom';
-      ambientX.value = 12;
-      ambientY.value = 88;
-      ambientRadius.value = 0.35;
-      ambientIntensity.value = 0.85;
-      ambientFeather.value = 0.55;
-    }
-    // trigger baseColor update
-    baseColorInput.dispatchEvent(new Event('input'));
-    // ensure all sliders/checks draw
-    drawPreview();
-  };
+  window.randomizeAll =
+    randomizeAll;
 
-  // ====================  COLLAPSIBLE SECTIONS ====================
-  document.querySelectorAll('.section-divider').forEach(div => {
-    div.addEventListener('click', function() {
-      const targetId = this.getAttribute('data-target');
-      const content = document.getElementById(targetId);
-      if(content) {
-        content.classList.toggle('collapsed');
-        this.classList.toggle('collapsed');
+  // ============================================================
+  // PRESETS
+  // ============================================================
+
+  window.applyWallpaperPreset =
+    function() {
+
+      const preset =
+        document.getElementById(
+          "wallpaperPreset"
+        ).value;
+
+      if (preset === "default") {
+
+        baseColorInput.value =
+          "#007aff";
+
+        generatePaletteFromBase(
+          "#007aff"
+        );
+
+        showLetters.checked = true;
+        glow.checked = false;
+        vertical.checked = false;
+
+        fontSize.value = 20;
+        density.value = 70;
+        textColor.value = "#ffffff";
+
+        rotateMax.value = 0;
+        sizeVar.value = .3;
+        clustering.value = 0;
+
+        minimalToggle.checked = false;
+
+        ripplesToggle.checked = true;
+        rippleStyle.value = "concentric";
+        rippleColor.value = "#88aaff";
+        rippleThick.value = 2;
+        rippleStep.value = 30;
+        rippleCount.value = 5;
+        rippleOpacity.value = .6;
+
+        sealToggle.checked = true;
+        sealChar.value = "波";
+        sealColor.value = "#aa2222";
+        sealSize.value = 40;
+
+        vignetteToggle.checked = false;
+        lightLeakToggle.checked = false;
+        framingToggle.checked = false;
+        ruleThirds.checked = false;
+
+        colorFXMaster.checked = true;
+        bloom.value = 0;
+        prismatic.value = 0;
+
+        paperIntensity.value = 0;
+        metallic.value = 0;
+        emboss.value = 0;
+
+        ambientGlowToggle.checked = false;
+
+      } else if (preset === "minimalRipples") {
+
+        baseColorInput.value =
+          "#2c3e50";
+
+        generatePaletteFromBase(
+          "#2c3e50"
+        );
+
+        showLetters.checked = false;
+
+        minimalToggle.checked = true;
+        minimalType.value = "dots";
+        minimalColor.value = "#95a5a6";
+        minimalSize.value = 3;
+        minimalSpacing.value = 40;
+        minimalOpacity.value = .4;
+
+        ripplesToggle.checked = true;
+        rippleStyle.value = "grid";
+        rippleColor.value = "#ecf0f1";
+        rippleThick.value = 1;
+        rippleStep.value = 50;
+        rippleCount.value = 8;
+        rippleOpacity.value = .3;
+
+        sealToggle.checked = true;
+        sealChar.value = "静";
+        sealColor.value = "#e67e22";
+        sealSize.value = 35;
+
+        vignetteToggle.checked = true;
+        vignetteStr.value = .5;
+
+        framingToggle.checked = true;
+
+        bloom.value = .1;
+        prismatic.value = 0;
+        paperIntensity.value = 0;
+
+        ambientGlowToggle.checked = false;
+
+      } else if (preset === "darkGeometric") {
+
+        baseColorInput.value =
+          "#1a1a2e";
+
+        generatePaletteFromBase(
+          "#1a1a2e"
+        );
+
+        showLetters.checked = true;
+        glow.checked = true;
+        textColor.value = "#e0e0e0";
+
+        fontSize.value = 24;
+        density.value = 80;
+        clustering.value = .2;
+
+        minimalToggle.checked = true;
+        minimalType.value = "lines";
+        minimalColor.value = "#4e4e6e";
+        minimalSize.value = 2;
+        minimalSpacing.value = 50;
+        minimalOpacity.value = .5;
+
+        ripplesToggle.checked = true;
+        rippleStyle.value = "offset";
+        rippleColor.value = "#6a4e9e";
+        rippleThick.value = 3;
+        rippleStep.value = 40;
+        rippleCount.value = 6;
+        rippleOpacity.value = .5;
+
+        sealToggle.checked = false;
+
+        vignetteToggle.checked = true;
+        vignetteStr.value = .7;
+
+        lightLeakToggle.checked = true;
+        leakColor.value = "#4a2a6a";
+
+        bloom.value = .2;
+        prismatic.value = .1;
+
+        paperIntensity.value = .05;
+
+        ambientGlowToggle.checked = false;
+
+      } else if (preset === "vibrantBloom") {
+
+        baseColorInput.value =
+          "#ff6b6b";
+
+        generatePaletteFromBase(
+          "#ff6b6b"
+        );
+
+        showLetters.checked = true;
+        glow.checked = true;
+        textColor.value = "#ffffaa";
+
+        fontSize.value = 30;
+        density.value = 60;
+        rotateMax.value = 15;
+
+        minimalToggle.checked = false;
+
+        ripplesToggle.checked = true;
+        rippleStyle.value = "multiorigin";
+        rippleColor.value = "#ffd966";
+        rippleThick.value = 4;
+        rippleStep.value = 35;
+        rippleCount.value = 10;
+        rippleOpacity.value = .8;
+
+        sealToggle.checked = true;
+        sealChar.value = "光";
+        sealColor.value = "#ffaa00";
+        sealSize.value = 45;
+
+        vignetteToggle.checked = false;
+
+        lightLeakToggle.checked = true;
+        leakColor.value = "#ffaa88";
+
+        bloom.value = .7;
+        prismatic.value = .3;
+
+        paperIntensity.value = 0;
+
+        ambientGlowToggle.checked = false;
+
+      } else if (preset === "monochromeLines") {
+
+        baseColorInput.value =
+          "#333333";
+
+        generatePaletteFromBase(
+          "#333333"
+        );
+
+        showLetters.checked = false;
+
+        minimalToggle.checked = true;
+        minimalType.value = "grid";
+        minimalColor.value = "#aaaaaa";
+        minimalSize.value = 1;
+        minimalSpacing.value = 40;
+        minimalOpacity.value = .3;
+
+        ripplesToggle.checked = true;
+        rippleStyle.value = "spiral";
+        rippleColor.value = "#cccccc";
+        rippleThick.value = 2;
+        rippleStep.value = 30;
+        rippleCount.value = 8;
+        rippleOpacity.value = .4;
+
+        sealToggle.checked = true;
+        sealChar.value = "影";
+        sealColor.value = "#888888";
+        sealSize.value = 38;
+
+        vignetteToggle.checked = true;
+        vignetteStr.value = .4;
+
+        framingToggle.checked = true;
+
+        bloom.value = 0;
+        prismatic.value = 0;
+        paperIntensity.value = 0;
+
+        ambientGlowToggle.checked = false;
+
+      } else if (preset === "violetGlow") {
+
+        showLetters.checked = false;
+        minimalToggle.checked = false;
+        ripplesToggle.checked = false;
+        sealToggle.checked = false;
+
+        vignetteToggle.checked = false;
+        lightLeakToggle.checked = false;
+        framingToggle.checked = false;
+        ruleThirds.checked = false;
+
+        colorFXMaster.checked = false;
+        bloom.value = 0;
+        prismatic.value = 0;
+
+        paperIntensity.value = 0;
+        metallic.value = 0;
+        emboss.value = 0;
+
+        ambientGlowToggle.checked = true;
+
+        ambientBaseColor.value =
+          "#0c0b11";
+
+        ambientGlowColor.value =
+          "#4d2fbe";
+
+        ambientPosition.value =
+          "custom";
+
+        ambientX.value = 12;
+        ambientY.value = 88;
+
+        ambientRadius.value = .35;
+        ambientIntensity.value = .85;
+        ambientFeather.value = .55;
       }
+
+      renderPalette();
+      drawPreview();
+    };
+
+  // ============================================================
+  // COLLAPSIBLE SECTIONS
+  // ============================================================
+
+  document
+    .querySelectorAll(".section-divider")
+    .forEach(div => {
+
+      div.addEventListener(
+        "click",
+        function() {
+
+          const targetId =
+            this.getAttribute(
+              "data-target"
+            );
+
+          const content =
+            document.getElementById(
+              targetId
+            );
+
+          if (!content) return;
+
+          if (
+            content.classList.contains(
+              "collapsed"
+            )
+          ) {
+
+            content.classList.remove(
+              "collapsed"
+            );
+
+            this.classList.remove(
+              "collapsed"
+            );
+
+            content.style.maxHeight =
+              content.scrollHeight + "px";
+
+          } else {
+
+            content.style.maxHeight =
+              content.scrollHeight + "px";
+
+            requestAnimationFrame(() => {
+
+              content.classList.add(
+                "collapsed"
+              );
+
+              this.classList.add(
+                "collapsed"
+              );
+            });
+          }
+        }
+      );
     });
-  });
 
-  // ====================  ATTACH EVENT LISTENERS ====================
-  document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", drawPreview));
-  document.querySelectorAll("input[type=checkbox]").forEach(el => el.addEventListener("change", drawPreview));
+  // Set initial max-height for smooth collapse
+  document
+    .querySelectorAll(".section-content")
+    .forEach(content => {
 
-  // ====================  EXPOSE GLOBALLY ====================
-  window.generateNew = function() { generatePalette(); renderPalette(); drawPreview(); };
-  window.downloadWallpaper = downloadWallpaper;
-  window.randomizeAll = randomizeAll;
+      content.style.maxHeight =
+        content.scrollHeight + "px";
+    });
 
-  // ====================  INIT ====================
-  generatePalette();
+  // ============================================================
+  // LIVE CONTROLS
+  // ============================================================
+
+  document
+    .querySelectorAll(
+      "input:not([type='checkbox']), select"
+    )
+    .forEach(el => {
+
+      el.addEventListener(
+        "input",
+        drawPreview
+      );
+
+      el.addEventListener(
+        "change",
+        drawPreview
+      );
+    });
+
+  document
+    .querySelectorAll(
+      "input[type='checkbox']"
+    )
+    .forEach(el => {
+
+      el.addEventListener(
+        "change",
+        drawPreview
+      );
+    });
+
+  // ============================================================
+  // GLOBAL FUNCTIONS
+  // ============================================================
+
+  window.generateNew =
+    function() {
+
+      generatePalette();
+      renderPalette();
+      drawPreview();
+    };
+
+  window.downloadWallpaper =
+    downloadWallpaper;
+
+  // ============================================================
+  // INITIALIZATION
+  // ============================================================
+
+  generatePaletteFromBase(
+    baseColorInput.value
+  );
+
   renderPalette();
+
   drawPreview();
+
 })();
 </script>
+
 </body>
 </html>
